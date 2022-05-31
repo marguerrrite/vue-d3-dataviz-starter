@@ -42,13 +42,13 @@
 
                 data: [], // processed data
 
-                activeSource: "gistemp",
+                activeSource: "gcag",
                 sources: [],
 
                 dimensions: {
                     marginTop: 10,
                     marginRight: 10,
-                    marginBottom: 40,
+                    marginBottom: 60,
                     marginLeft: 40,
                     boundedWidth: 0,
                     boundedHeight: 0,
@@ -70,7 +70,10 @@
                 return 1.1;
             },
             minYValue() {
-                return -1.1;
+                return -0.5;
+            },
+            yearTicks() {
+                return range(1880, 2020, 20);
             },
         },
         methods: {
@@ -166,7 +169,7 @@
             },
             activeSource() {
                 this.setDimensions();
-            }
+            },
         },
         async mounted() {
             this.loadData();
@@ -187,6 +190,7 @@
         <div class="actions">
             <Button
                 @click="changeActiveDataset(source)"
+                :class="{inactive: activeSource != source}"
                 v-for="source in sources"
                 :key="source"
             >
@@ -195,32 +199,32 @@
         </div>
         <div v-if="isLoading">Loading data...</div>
         <div v-if="!isLoading" class="chart-container">
-            <svg class="chart" :width="dimensions.boundedWidth" :height="dimensions.boundedHeight">
+            <svg class="chart" :width="dimensions.width" :height="dimensions.height">
                 <g
                     :transform="`translate(${dimensions.marginLeft}, ${dimensions.marginTop})`"
                 >
-                    <path :d="dataPath" stroke="black" fill="none" />
+                    <path :d="dataPath" stroke="black" fill="none" class="data-path"/>
                     <g
-                        class="x-axis"
+                        class="x-ticks"
                         :style="{
                             transform: `translate(0, ${dimensions.boundedHeight}px)`,
                         }"
                     >
                         <text
                             class="tick-label"
-                            v-for="d in data[activeSource]"
-                            :key="d"
-                            :x="dimensions.boundedWidth - xScale(d.year)"
-                            :style="{transform: `translate(0, 12px)`}"
+                            v-for="year in yearTicks"
+                            :key="year"
+                            :x="xScale(year)"
+                            :style="{transform: `translate(0, 0)`}"
                         >
-                            {{ d.year }}
+                            {{ year }}
                         </text>
                     </g>
-                    <g class="x-axis">
+                    <g class="x-ticks">
                         <line
                             v-for="rule in [-1, -0.5, 0, 0.5, 1]"
                             :key="rule"
-                            :class="`x-rule-${rule}`"
+                            :class="`x-rule x-rule-${rule}`"
                             :y1="yScale(rule)"
                             :y2="yScale(rule)"
                             x1="0"
@@ -228,22 +232,34 @@
                             stroke="black"
                         />
                     </g>
-                    <g
-                        class="y-axis"
-                        :style="{
-                            transform: `translate(0, 0)`,
-                        }"
-                    >
-                        <line y1="0" :y2="dimensions.boundedHeight" stroke="black" />
+                    <g class="y-ticks">
+                        <line
+                            v-for="rule in yearTicks"
+                            :key="rule"
+                            :class="`y-rule y-rule-${rule}`"
+                            :x1="xScale(rule)"
+                            :x2="xScale(rule)"
+                            y1="0"
+                            :y2="dimensions.boundedHeight"
+                            stroke="black"
+                        />
+                    </g>
+                    <g class="y-axis">
+                        <line
+                            class="y-rule"
+                            y1="0"
+                            :y2="dimensions.boundedHeight"
+                            stroke="black"
+                        />
                         <text
                             class="tick-label"
-                            v-for="d in data[activeSource]"
-                            :key="d"
-                            :y="dimensions.boundedHeight - xScale(d.year)"
-                            :x="dimensions.boundedWidth - xScale(d.year)"
-                            :style="{transform: `translate(0, 12px)`}"
+                            v-for="tick in [-0.5, 0, 0.5, 1]"
+                            :key="tick"
+                            :y="dimensions.boundedHeight - yScale(tick)"
+                            :x="-25"
+                            :style="{transform: `translate(0, -10px)`}"
                         >
-                            {{ d.year }}
+                            {{ tick }}
                         </text>
                     </g>
                 </g>
@@ -261,6 +277,10 @@
         .actions {
             display: flex;
             gap: 0.35em;
+
+            .inactive {
+                background: var(--grey-300);
+            }
         }
 
         .chart-container {
@@ -269,17 +289,31 @@
         }
 
         .chart {
-            .x-axis,
-            .y-axis {
-                opacity: 0.3;
+            .data-path {
+                transition: all 100ms linear;
             }
 
-            .tick-label {
-                font-size: 8px;
-                display: none;
+            .x-rule {
+                opacity: 0.1;
 
-                &:nth-child(4n + 4) {
-                    display: block;
+                &.x-rule-0 {
+                    opacity: 0.3;
+                }
+            }
+            .y-rule {
+                opacity: 0.1;
+            }
+
+            .x-ticks {
+                .tick-label {
+                    font-size: 8px;
+                    text-anchor: middle;
+                }
+            }
+
+            .y-axis {
+                .tick-label {
+                    font-size: 8px;
                 }
             }
         }
