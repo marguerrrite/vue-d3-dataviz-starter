@@ -46,6 +46,7 @@
 
         &:hover {
             background: lightgrey;
+            background: var(--neon-green-300);
         }
 
         &.no-style {
