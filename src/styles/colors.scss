@@ -1,0 +1,47 @@
+:root {
+    --grey-900: #111010;
+    --grey-800: #3d3f42;
+    --grey-700: #7d7f81;
+    --grey-600: #a9aaab;
+    --grey-500: #bebfc0;
+    --grey-400: #d4d4d5;
+    --grey-300: #e9eaea;
+    --grey-200: #f2f2f2;
+    --grey-100: #f9f9fa;
+
+    --neon-green-500: #00e100;
+    --neon-green-300: #adff00;
+
+    --neon-pink-500: #ff00db;
+    --neon-pink-100: #ffe5fb;
+
+    // brands
+    --aclu-blue-lightest: #d5f2f7;
+    --aclu-blue-light: #A3DAE2;
+    --aclu-blue: #175FAF;
+    --aclu-blue-dark: #130F54;
+}
+
+[theme="light"],
+:root {
+    --background-color: white;
+    --text-base-color: black;
+
+    --border-500: #e9eaea;
+
+    --accent-01: #d600ff;
+
+    --name-title-background: black;
+    --name-title-background--hover: black;
+}
+
+[theme="dark"],
+:root {
+    --background-color: #21252b;
+    --text-base-color: #b6b6b6;
+
+    --accent-01: #d600ff;
+
+    --name-title-background: white;
+    --name-title-background--hover: white;
+}
