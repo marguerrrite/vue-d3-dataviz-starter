@@ -160,6 +160,29 @@
                 }
                 this.activeSource = newSet;
             },
+            onMouseMove(e) {
+                let x = e.offsetX; // right edge of the chart
+                let y = e.offsetY;
+
+                // let hoveredDataBarHeight = this.yScale(this.yAccessor(this.barData[index])); // not listener-bar
+
+                // let yOffset =
+                //     this.dimensions.height -
+                //     this.dimensions.marginTop -
+                //     (hoveredDataBarHeight < 20 ? 20 : hoveredDataBarHeight);
+                // let y = yOffset - 20;
+
+                debugger;
+
+                this.hoveredTooltipCoords = {x, y};
+                this.hoveredTooltipData = ""
+                // this.hoveredPeriodIndex = index;
+            },
+            onMouseLeave(e) {
+                this.hoveredTooltipCoords = {x: 0, y: 0};
+                this.hoveredPeriodData = {};
+                this.hoveredPeriodIndex = -1;
+            },
         },
         watch: {
             data() {
@@ -199,11 +222,23 @@
         </div>
         <div v-if="isLoading">Loading data...</div>
         <div v-if="!isLoading" class="chart-container">
-            <svg class="chart" :width="dimensions.width" :height="dimensions.height">
+            <GlobalHeatTooltip
+                class="tooltip"
+                :style="{
+                    transform: `translate(${hoveredTooltipCoords.x}px, ${hoveredTooltipCoords.y}px)`,
+                }"
+            />
+            <svg
+                @mouseleave="onMouseLeave"
+                @mousemove="onMouseMove"
+                class="chart"
+                :width="dimensions.width"
+                :height="dimensions.height"
+            >
                 <g
                     :transform="`translate(${dimensions.marginLeft}, ${dimensions.marginTop})`"
                 >
-                    <path :d="dataPath" stroke="black" fill="none" class="data-path"/>
+                    <path :d="dataPath" stroke="black" fill="none" class="data-path" />
                     <g
                         class="x-ticks"
                         :style="{
@@ -229,6 +264,16 @@
                             :y2="yScale(rule)"
                             x1="0"
                             :x2="dimensions.boundedWidth"
+                            stroke="black"
+                        />
+                    </g>
+                    <g class="y-tooltip">
+                        <line
+                            :class="`y-rule y-rule-tooltip`"
+                            :x1="hoveredTooltipCoords.x - dimensions.marginLeft"
+                            :x2="hoveredTooltipCoords.x - dimensions.marginLeft"
+                            y1="0"
+                            :y2="dimensions.boundedHeight"
                             stroke="black"
                         />
                     </g>
@@ -283,6 +328,11 @@
             }
         }
 
+        .tooltip {
+            position: absolute;
+            transition: 10ms linear all;
+        }
+
         .chart-container {
             width: 100%;
             height: 100%;
@@ -302,6 +352,11 @@
             }
             .y-rule {
                 opacity: 0.1;
+            }
+
+            .y-rule-tooltip {
+                transition: 100ms linear all;
+                opacity: 0.5;
             }
 
             .x-ticks {

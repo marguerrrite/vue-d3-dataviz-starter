@@ -1,6 +1,6 @@
 <script>
     import {mapState} from "vuex";
-    import GlobalHeatChart from "@/components/GlobalHeatChart.vue";
+    import GlobalHeatChart from "@/components/GlobalHeatChart/GlobalHeatChart.vue";
 
     export default {
         name: "Index",
