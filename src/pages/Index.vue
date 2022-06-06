@@ -5,7 +5,7 @@
     export default {
         name: "Index",
         components: {
-            GlobalHeatChart
+            GlobalHeatChart,
         },
         data() {
             return {
@@ -13,8 +13,7 @@
             };
         },
         computed: {
-            ...mapState({
-            }),
+            ...mapState({}),
         },
 
         methods: {},
@@ -28,10 +27,13 @@
     <MaxWidth class="Index" size="m" v-if="isLoaded">
         <div>
             <p>
-                Starting projects is annoying. Here is a Vue + Vite setup with some D3 examples!
+                Starting projects is annoying. Here is a Vue + Vite setup with some D3
+                examples!
             </p>
         </div>
-        <GlobalHeatChart/>
+        <div class="project">
+            <GlobalHeatChart />
+        </div>
     </MaxWidth>
 </template>
 
@@ -39,5 +41,9 @@
     @import "./../styles/globals";
     .Index {
         height: 100%;
+
+        .project {
+            margin: 3em 0;
+        }
     }
 </style>
