@@ -46,7 +46,7 @@
                     marginTop: 10,
                     marginRight: 10,
                     marginBottom: 60,
-                    marginLeft: 40,
+                    marginLeft: 60,
                     boundedWidth: 0,
                     boundedHeight: 0,
                     height: 0,
@@ -73,6 +73,10 @@
             yearTicks() {
                 return range(1880, 2020, 20);
             },
+            middleYear() {
+                //from range above ^ in yearTicks
+                return 1880 + ((2016 - 1880) / 2)
+            }
         },
         methods: {
             loadData() {
@@ -227,6 +231,17 @@
 
 <template>
     <div class="insight-frequency" ref="container">
+        <div class="metas">
+            <h2>Monthly Temperature Anomalies °C, 1880 &ndash; 2016</h2>
+            <div class="description">
+                Source:
+                <Link to="https://datahub.io/core/global-temp#data" do-open-in-new-tab>
+                    GISS Surface Temperature (GISTEMP) analysis and Climate at a Glance
+                    (GCAG)
+                </Link>
+            </div>
+        </div>
+
         <div class="actions">
             <Button
                 @click="changeActiveDataset(source)"
@@ -254,7 +269,7 @@
                     :width="tooltipWidth"
                     :style="{
                         transform: `translate(${
-                            hoveredTooltipCoords.attach == 'right' ? '0' : '-100'
+                            hoveredTooltipCoords.attach == 'right' ? '5' : '-105'
                         }%, -50%)`,
                         border: '3px solid red',
                     }"
@@ -321,6 +336,13 @@
                             :y2="dimensions.boundedHeight"
                             stroke="black"
                         />
+                        <text
+                            class="x-tick-label"
+                            :x="xScale(new Date(middleYear.toString()))"
+                            :y="dimensions.height - 30"
+                        >
+                            Year
+                        </text>
                     </g>
                     <g class="y-axis">
                         <line
@@ -340,6 +362,18 @@
                             {{ tick }}
                         </text>
                     </g>
+                    <g :style="{
+                        transform: `translate(-40px, ${yScale(0) - 4}px)`,
+                    }">
+                         <text
+                            class="y-tick-label"
+                            :x="0"
+                            :y="0"
+                            :style="{transform: `translate(0, 0px) rotate(-90deg)`}"
+                        >
+                            Mean (°C)
+                        </text>
+                    </g>
                 </g>
             </svg>
         </div>
@@ -349,8 +383,30 @@
 <style lang="scss">
     .insight-frequency {
         max-height: 300px;
+        height: 100%;
         width: 100%;
         height: 100%;
+
+        .metas {
+            margin-bottom: 2em;
+
+            h1,
+            h2,
+            h3 {
+                margin: 0;
+            }
+
+            h3 {
+                opacity: 0.5;
+                font-weight: 500;
+                margin: 0.25em 0;
+            }
+
+            .description {
+                margin: 1em 0;
+            }
+
+        }
 
         .actions {
             display: flex;
@@ -397,6 +453,16 @@
                     font-size: 8px;
                     text-anchor: middle;
                 }
+            }
+
+            .y-tick-label {
+                font-size: 0.7em;
+                text-anchor: middle;
+            }
+
+            .x-tick-label {
+                font-size: 0.7em;
+                text-anchor: middle;
             }
 
             .y-axis {
