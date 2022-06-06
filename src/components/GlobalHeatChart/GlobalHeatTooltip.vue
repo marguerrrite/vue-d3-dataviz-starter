@@ -20,39 +20,45 @@
     export default {
         name: "GlobalHeatTooltip",
         props: {
-
+            data: {
+                type: Object,
+                required: true,
+            },
+            width: {
+                type: Number,
+                default: 400,
+            },
         },
         data() {
-            return {
-
-            };
+            return {};
         },
-        computed: {
-
-        },
-        methods: {
-
-        },
-        watch: {
-
-        },
-        mounted() {
-        },
+        computed: {},
+        methods: {},
+        watch: {},
+        mounted() {},
     };
 </script>
 
 <template>
-    <div class="global-heat-tooltip">
-        tooltip
+    <div
+        class="global-heat-tooltip"
+        :style="{
+            width: `${width}px`,
+        }"
+    >
+        <div v-if="data?.year">
+            <div>year {{ data.year }}</div>
+            <div>mean {{ data.mean }}</div>
+        </div>
     </div>
 </template>
 
 <style lang="scss">
     .global-heat-tooltip {
-        width: min-width;
         border: 1px solid;
         padding: 0.35em;
         background: white;
+        width: 100%;
         pointer-events: none;
     }
 </style>

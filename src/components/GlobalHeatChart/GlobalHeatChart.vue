@@ -8,6 +8,7 @@
         scaleUtc,
         range,
         line,
+        scan,
         sum,
         max,
         min,
@@ -20,17 +21,13 @@
     export default {
         name: "GlobalHeatChart",
         props: {
-            interval: {
-                type: String,
-                default: "daily",
-            },
             yAccessor: {
                 type: Function,
                 default: d => d.mean,
             },
             xAccessor: {
                 type: Function,
-                default: d => d.year,
+                default: d => new Date(d.year),
             },
         },
         data() {
@@ -42,7 +39,7 @@
 
                 data: [], // processed data
 
-                activeSource: "gcag",
+                activeSource: "average",
                 sources: [],
 
                 dimensions: {
@@ -55,10 +52,11 @@
                     height: 0,
                     width: 0,
                 },
-                xScale: scaleBand(),
+                xScale: scaleUtc(),
                 yScale: scaleLinear(),
 
                 dataPath: "",
+                tooltipWidth: 200,
 
                 hoveredTooltipCoords: {x: 0, y: 0},
                 hoveredPeriodData: {},
@@ -115,7 +113,9 @@
                             (average[row.year]["mean"] + row.mean) / 2;
                     }
                 });
-                average = Object.values(average).reverse();
+                gcag = gcag.reverse();
+                gistemp = gistemp.reverse();
+                average = Object.values(average);
                 this.data = {gcag, gistemp, average};
                 this.sources = Object.keys(this.data);
             },
@@ -133,22 +133,26 @@
                 if (!this.data[this.activeSource]) {
                     return;
                 }
+
                 this.xScale = scaleUtc()
                     .domain([
-                        this.data[this.activeSource][0].year,
-                        this.data[this.activeSource][this.data[this.activeSource].length - 1]
-                            .year,
+                        new Date(this.data[this.activeSource][0].year),
+                        new Date(
+                            this.data[this.activeSource][
+                                this.data[this.activeSource].length - 1
+                            ].year
+                        ),
                     ])
                     .range([0, this.dimensions.boundedWidth]);
                 this.yScale = scaleLinear()
-                    .domain([this.minYValue, this.maxYValue])
+                    .domain([this.maxYValue, this.minYValue - 0.25])
                     .range([0, this.dimensions.boundedHeight]);
                 this.generateLine();
             },
             generateLine() {
                 let pathGenerator = () =>
                     line()
-                        .x(d => this.xScale(d.year))
+                        .x(d => this.xScale(new Date(d.year)))
                         .y(d => this.yScale(d.mean));
 
                 this.dataPath = pathGenerator()([...this.data[this.activeSource]]);
@@ -160,26 +164,39 @@
                 }
                 this.activeSource = newSet;
             },
-            onMouseMove(e) {
-                let x = e.offsetX; // right edge of the chart
+            setTooltip(e) {
+                let x = e.offsetX - this.dimensions.marginLeft; // left edge of the chart
                 let y = e.offsetY;
 
-                // let hoveredDataBarHeight = this.yScale(this.yAccessor(this.barData[index])); // not listener-bar
+                let hoveredDate = this.xScale.invert(x);
+                let getDistanceFromHoveredDate = d => {
+                    return Math.abs(
+                        this.xScale(this.xAccessor(d)) - this.xScale(hoveredDate)
+                    );
+                };
+                let closestIndex = scan(this.data[this.activeSource], (a, b) => {
+                    return getDistanceFromHoveredDate(a) - getDistanceFromHoveredDate(b);
+                });
 
-                // let yOffset =
-                //     this.dimensions.height -
-                //     this.dimensions.marginTop -
-                //     (hoveredDataBarHeight < 20 ? 20 : hoveredDataBarHeight);
-                // let y = yOffset - 20;
+                let attach = "right";
+                if (this.tooltipWidth + x > this.dimensions.boundedWidth) {
+                    attach = "left";
+                }
 
-                debugger;
-
-                this.hoveredTooltipCoords = {x, y};
-                this.hoveredTooltipData = ""
-                // this.hoveredPeriodIndex = index;
+                this.hoveredTooltipCoords = {x, y, attach};
+                this.hoveredPeriodData = this.data[this.activeSource][closestIndex];
+                this.hoveredPeriodIndex = closestIndex;
+            },
+            onMouseMove(e) {
+                utils.debounce(this.setTooltip(e), 9000);
             },
             onMouseLeave(e) {
-                this.hoveredTooltipCoords = {x: 0, y: 0};
+                this.hoveredTooltipCoords = {
+                    x: 0,
+                    y: 0,
+                    attach: "right",
+                    width: this.tooltipWidth,
+                };
                 this.hoveredPeriodData = {};
                 this.hoveredPeriodIndex = -1;
             },
@@ -222,12 +239,28 @@
         </div>
         <div v-if="isLoading">Loading data...</div>
         <div v-if="!isLoading" class="chart-container">
-            <GlobalHeatTooltip
-                class="tooltip"
+            <div
                 :style="{
-                    transform: `translate(${hoveredTooltipCoords.x}px, ${hoveredTooltipCoords.y}px)`,
+                    transform: `translate(${
+                        hoveredTooltipCoords.x + dimensions.marginLeft
+                    }px, ${hoveredTooltipCoords.y}px)`,
+                    opacity: hoveredPeriodData.year ? 1 : 0,
                 }"
-            />
+            >
+                <GlobalHeatTooltip
+                    ref="heat-tooltip"
+                    class="tooltip"
+                    :data="hoveredPeriodData"
+                    :width="tooltipWidth"
+                    :style="{
+                        transform: `translate(${
+                            hoveredTooltipCoords.attach == 'right' ? '0' : '-100'
+                        }%, -50%)`,
+                        border: '3px solid red',
+                    }"
+                />
+            </div>
+
             <svg
                 @mouseleave="onMouseLeave"
                 @mousemove="onMouseMove"
@@ -249,15 +282,15 @@
                             class="tick-label"
                             v-for="year in yearTicks"
                             :key="year"
-                            :x="xScale(year)"
-                            :style="{transform: `translate(0, 0)`}"
+                            :x="xScale(new Date(year.toString()))"
+                            :style="{transform: `translate(0, 10px)`}"
                         >
                             {{ year }}
                         </text>
                     </g>
                     <g class="x-ticks">
                         <line
-                            v-for="rule in [-1, -0.5, 0, 0.5, 1]"
+                            v-for="rule in [-0.5, 0, 0.5, 1]"
                             :key="rule"
                             :class="`x-rule x-rule-${rule}`"
                             :y1="yScale(rule)"
@@ -270,8 +303,8 @@
                     <g class="y-tooltip">
                         <line
                             :class="`y-rule y-rule-tooltip`"
-                            :x1="hoveredTooltipCoords.x - dimensions.marginLeft"
-                            :x2="hoveredTooltipCoords.x - dimensions.marginLeft"
+                            :x1="hoveredTooltipCoords.x"
+                            :x2="hoveredTooltipCoords.x"
                             y1="0"
                             :y2="dimensions.boundedHeight"
                             stroke="black"
@@ -279,11 +312,11 @@
                     </g>
                     <g class="y-ticks">
                         <line
-                            v-for="rule in yearTicks"
-                            :key="rule"
-                            :class="`y-rule y-rule-${rule}`"
-                            :x1="xScale(rule)"
-                            :x2="xScale(rule)"
+                            v-for="year in yearTicks"
+                            :key="year"
+                            :x1="xScale(new Date(year.toString()))"
+                            :x2="xScale(new Date(year.toString()))"
+                            :class="`y-rule y-rule-${year}`"
                             y1="0"
                             :y2="dimensions.boundedHeight"
                             stroke="black"
@@ -300,7 +333,7 @@
                             class="tick-label"
                             v-for="tick in [-0.5, 0, 0.5, 1]"
                             :key="tick"
-                            :y="dimensions.boundedHeight - yScale(tick)"
+                            :y="yScale(tick) + dimensions.marginTop"
                             :x="-25"
                             :style="{transform: `translate(0, -10px)`}"
                         >
