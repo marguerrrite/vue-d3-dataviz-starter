@@ -1,22 +1,4 @@
 <script>
-    import utils from "@/scripts/utils.js";
-
-    import {
-        scaleLinear,
-        scaleBand,
-        curveCardinal,
-        scaleUtc,
-        range,
-        line,
-        sum,
-        max,
-        min,
-        timeFormat,
-        timeSeconds,
-        utcMinute,
-        utcHour,
-    } from "d3";
-
     export default {
         name: "GlobalHeatTooltip",
         props: {

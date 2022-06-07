@@ -1,22 +1,7 @@
 <script>
     import utils from "@/scripts/utils.js";
 
-    import {
-        scaleLinear,
-        scaleBand,
-        curveCardinal,
-        scaleUtc,
-        range,
-        line,
-        scan,
-        sum,
-        max,
-        min,
-        timeFormat,
-        timeSeconds,
-        utcMinute,
-        utcHour,
-    } from "d3";
+    import {scaleLinear, scaleUtc, range, line, scan} from "d3";
 
     export default {
         name: "GlobalHeatChart",
@@ -75,8 +60,8 @@
             },
             middleYear() {
                 //from range above ^ in yearTicks
-                return 1880 + ((2016 - 1880) / 2)
-            }
+                return 1880 + (2016 - 1880) / 2;
+            },
         },
         methods: {
             loadData() {
@@ -230,7 +215,7 @@
 </script>
 
 <template>
-    <div class="insight-frequency" ref="container">
+    <div class="global-heat-chart">
         <div class="metas">
             <h2>Monthly Temperature Anomalies °C, 1880 &ndash; 2016</h2>
             <div class="description">
@@ -253,136 +238,144 @@
             </Button>
         </div>
         <div v-if="isLoading">Loading data...</div>
-        <div v-if="!isLoading" class="chart-container">
-            <div
-                :style="{
-                    transform: `translate(${
-                        hoveredTooltipCoords.x + dimensions.marginLeft
-                    }px, ${hoveredTooltipCoords.y}px)`,
-                    opacity: hoveredPeriodData.year ? 1 : 0,
-                }"
-            >
-                <GlobalHeatTooltip
-                    ref="heat-tooltip"
-                    class="tooltip"
-                    :data="hoveredPeriodData"
-                    :width="tooltipWidth"
+        <div class="chart-container" ref="container">
+            <template v-if="!isLoading">
+                <div
                     :style="{
                         transform: `translate(${
-                            hoveredTooltipCoords.attach == 'right' ? '5' : '-105'
-                        }%, -50%)`,
-                        border: '3px solid red',
+                            hoveredTooltipCoords.x + dimensions.marginLeft
+                        }px, ${hoveredTooltipCoords.y}px)`,
+                        opacity: hoveredPeriodData.year ? 1 : 0,
                     }"
-                />
-            </div>
-
-            <svg
-                @mouseleave="onMouseLeave"
-                @mousemove="onMouseMove"
-                class="chart"
-                :width="dimensions.width"
-                :height="dimensions.height"
-            >
-                <g
-                    :transform="`translate(${dimensions.marginLeft}, ${dimensions.marginTop})`"
                 >
-                    <path :d="dataPath" stroke="black" fill="none" class="data-path" />
-                    <g
-                        class="x-ticks"
+                    <GlobalHeatTooltip
+                        ref="heat-tooltip"
+                        class="tooltip"
+                        :data="hoveredPeriodData"
+                        :width="tooltipWidth"
                         :style="{
-                            transform: `translate(0, ${dimensions.boundedHeight}px)`,
+                            transform: `translate(${
+                                hoveredTooltipCoords.attach == 'right' ? '5' : '-105'
+                            }%, -50%)`,
+                            border: '3px solid red',
                         }"
+                    />
+                </div>
+
+                <svg
+                    @mouseleave="onMouseLeave"
+                    @mousemove="onMouseMove"
+                    class="chart"
+                    :width="dimensions.width"
+                    :height="dimensions.height"
+                >
+                    <g
+                        :transform="`translate(${dimensions.marginLeft}, ${dimensions.marginTop})`"
                     >
-                        <text
-                            class="tick-label"
-                            v-for="year in yearTicks"
-                            :key="year"
-                            :x="xScale(new Date(year.toString()))"
-                            :style="{transform: `translate(0, 10px)`}"
-                        >
-                            {{ year }}
-                        </text>
-                    </g>
-                    <g class="x-ticks">
-                        <line
-                            v-for="rule in [-0.5, 0, 0.5, 1]"
-                            :key="rule"
-                            :class="`x-rule x-rule-${rule}`"
-                            :y1="yScale(rule)"
-                            :y2="yScale(rule)"
-                            x1="0"
-                            :x2="dimensions.boundedWidth"
+                        <path
+                            :d="dataPath"
                             stroke="black"
+                            fill="none"
+                            class="data-path"
                         />
-                    </g>
-                    <g class="y-tooltip">
-                        <line
-                            :class="`y-rule y-rule-tooltip`"
-                            :x1="hoveredTooltipCoords.x"
-                            :x2="hoveredTooltipCoords.x"
-                            y1="0"
-                            :y2="dimensions.boundedHeight"
-                            stroke="black"
-                        />
-                    </g>
-                    <g class="y-ticks">
-                        <line
-                            v-for="year in yearTicks"
-                            :key="year"
-                            :x1="xScale(new Date(year.toString()))"
-                            :x2="xScale(new Date(year.toString()))"
-                            :class="`y-rule y-rule-${year}`"
-                            y1="0"
-                            :y2="dimensions.boundedHeight"
-                            stroke="black"
-                        />
-                        <text
-                            class="x-tick-label"
-                            :x="xScale(new Date(middleYear.toString()))"
-                            :y="dimensions.height - 30"
+                        <g
+                            class="x-ticks"
+                            :style="{
+                                transform: `translate(0, ${dimensions.boundedHeight}px)`,
+                            }"
                         >
-                            Year
-                        </text>
-                    </g>
-                    <g class="y-axis">
-                        <line
-                            class="y-rule"
-                            y1="0"
-                            :y2="dimensions.boundedHeight"
-                            stroke="black"
-                        />
-                        <text
-                            class="tick-label"
-                            v-for="tick in [-0.5, 0, 0.5, 1]"
-                            :key="tick"
-                            :y="yScale(tick) + dimensions.marginTop"
-                            :x="-25"
-                            :style="{transform: `translate(0, -10px)`}"
+                            <text
+                                class="tick-label"
+                                v-for="year in yearTicks"
+                                :key="year"
+                                :x="xScale(new Date(year.toString()))"
+                                :style="{transform: `translate(0, 10px)`}"
+                            >
+                                {{ year }}
+                            </text>
+                        </g>
+                        <g class="x-ticks">
+                            <line
+                                v-for="rule in [-0.5, 0, 0.5, 1]"
+                                :key="rule"
+                                :class="`x-rule x-rule-${rule}`"
+                                :y1="yScale(rule)"
+                                :y2="yScale(rule)"
+                                x1="0"
+                                :x2="dimensions.boundedWidth"
+                                stroke="black"
+                            />
+                        </g>
+                        <g class="y-tooltip">
+                            <line
+                                :class="`y-rule y-rule-tooltip`"
+                                :x1="hoveredTooltipCoords.x"
+                                :x2="hoveredTooltipCoords.x"
+                                y1="0"
+                                :y2="dimensions.boundedHeight"
+                                stroke="black"
+                            />
+                        </g>
+                        <g class="y-ticks">
+                            <line
+                                v-for="year in yearTicks"
+                                :key="year"
+                                :x1="xScale(new Date(year.toString()))"
+                                :x2="xScale(new Date(year.toString()))"
+                                :class="`y-rule y-rule-${year}`"
+                                y1="0"
+                                :y2="dimensions.boundedHeight"
+                                stroke="black"
+                            />
+                            <text
+                                class="x-tick-label"
+                                :x="xScale(new Date(middleYear.toString()))"
+                                :y="dimensions.height - 30"
+                            >
+                                Year
+                            </text>
+                        </g>
+                        <g class="y-axis">
+                            <line
+                                class="y-rule"
+                                y1="0"
+                                :y2="dimensions.boundedHeight"
+                                stroke="black"
+                            />
+                            <text
+                                class="tick-label"
+                                v-for="tick in [-0.5, 0, 0.5, 1]"
+                                :key="tick"
+                                :y="yScale(tick) + dimensions.marginTop"
+                                :x="-25"
+                                :style="{transform: `translate(0, -10px)`}"
+                            >
+                                {{ tick }}
+                            </text>
+                        </g>
+                        <g
+                            :style="{
+                                transform: `translate(-40px, ${yScale(0) - 4}px)`,
+                            }"
                         >
-                            {{ tick }}
-                        </text>
+                            <text
+                                class="y-tick-label"
+                                :x="0"
+                                :y="0"
+                                :style="{transform: `translate(0, 0px) rotate(-90deg)`}"
+                            >
+                                Mean (°C)
+                            </text>
+                        </g>
                     </g>
-                    <g :style="{
-                        transform: `translate(-40px, ${yScale(0) - 4}px)`,
-                    }">
-                         <text
-                            class="y-tick-label"
-                            :x="0"
-                            :y="0"
-                            :style="{transform: `translate(0, 0px) rotate(-90deg)`}"
-                        >
-                            Mean (°C)
-                        </text>
-                    </g>
-                </g>
-            </svg>
+                </svg>
+            </template>
         </div>
     </div>
 </template>
 
 <style lang="scss">
-    .insight-frequency {
-        max-height: 300px;
+    .global-heat-chart {
         height: 100%;
         width: 100%;
         height: 100%;
@@ -405,7 +398,6 @@
             .description {
                 margin: 1em 0;
             }
-
         }
 
         .actions {
@@ -428,6 +420,8 @@
         }
 
         .chart {
+            max-height: 300px;
+
             .data-path {
                 transition: all 100ms linear;
             }
