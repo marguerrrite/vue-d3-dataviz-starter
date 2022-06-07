@@ -63,8 +63,10 @@ npm run dev
 
 
 #### Line chart
-- Average temperature for X location over time
+- Average temperature anomaly mean time series
 	- https://data.world/data-society/global-climate-change-data/workspace/file?filename=GlobalLandTemperatures%2FGlobalLandTemperaturesByState.csv
+- Mass shootings
+        -  
 
 
 
