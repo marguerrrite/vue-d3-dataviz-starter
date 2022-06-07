@@ -65,8 +65,11 @@ npm run dev
 #### Line chart
 - Average temperature anomaly mean time series
 	- https://data.world/data-society/global-climate-change-data/workspace/file?filename=GlobalLandTemperatures%2FGlobalLandTemperaturesByState.csv
+
+
+#### Scatter plot
 - Mass shootings
-        -  
+    -  https://data.world/marguerite/mother-jones-mass-shooting/workspace/file?filename=mass-shooting-mother-jones.csv
 
 
 
