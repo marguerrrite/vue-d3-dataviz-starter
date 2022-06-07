@@ -1,11 +1,13 @@
 <script>
     import {mapState} from "vuex";
     import GlobalHeatChart from "@/components/GlobalHeatChart/GlobalHeatChart.vue";
+    import MassShootingPlot from "@/components/MassShootingPlot/MassShootingPlot.vue";
 
     export default {
         name: "Index",
         components: {
             GlobalHeatChart,
+            MassShootingPlot
         },
         data() {
             return {
@@ -31,6 +33,9 @@
                 examples!
             </p>
         </div>
+        <!-- <div class="project">
+            <MassShootingPlot />
+        </div> -->
         <div class="project">
             <GlobalHeatChart />
         </div>
