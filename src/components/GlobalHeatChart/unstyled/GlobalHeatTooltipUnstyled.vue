@@ -1,6 +1,6 @@
 <script>
     export default {
-        name: "MassShootingTooltipp",
+        name: "GlobalHeatTooltipUnstyled",
         props: {
             data: {
                 type: Object,
@@ -23,20 +23,20 @@
 
 <template>
     <div
-        class="mass-shooting-tooltip"
+        class="global-heat-tooltip"
         :style="{
             width: `${width}px`,
         }"
     >
         <div v-if="data?.year">
-            <div>{{ data.shooter_name }}, {{ data.age_of_shooter }}</div>
-            <div>{{ data.location }},{{ data.date }}</div>
+            <div>year {{ data.year }}</div>
+            <div>mean {{ data.mean }}</div>
         </div>
     </div>
 </template>
 
 <style lang="scss">
-    .mass-shooting-tooltip {
+    .global-heat-tooltip-unstyled {
         border: 1px solid;
         padding: 0.35em;
         background: white;

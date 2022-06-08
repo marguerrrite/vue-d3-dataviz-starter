@@ -5,7 +5,7 @@
     import {Delaunay} from "d3-delaunay";
 
     export default {
-        name: "MassShootingPlot",
+        name: "MassShootingPlotUnstyled",
         props: {
             yAccessor: {
                 type: Function,
@@ -252,7 +252,7 @@
 </script>
 
 <template>
-    <div class="mass-shooting-plot">
+    <div class="mass-shooting-plot-unstyled">
         <div class="metas">
             <h2>Ages of US Mass Shooters, 1982 &ndash; 2022</h2>
             <div class="description">
@@ -279,7 +279,7 @@
                         display: 'inline-block'
                     }"
                 >
-                    <MassShootingTooltip
+                    <MassShootingTooltipUnstyled
                         :data="hoveredPeriodData"
                         :width="tooltipWidth"
                         :style="{
@@ -442,7 +442,7 @@
 </template>
 
 <style lang="scss">
-    .mass-shooting-plot {
+    .mass-shooting-plot-unstyled {
         height: 100%;
         width: 100%;
         overflow: hidden;

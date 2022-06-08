@@ -1,13 +1,13 @@
 <script>
     import {mapState} from "vuex";
-    import GlobalHeatChart from "@/components/GlobalHeatChart/GlobalHeatChart.vue";
-    import MassShootingPlot from "@/components/MassShootingPlot/MassShootingPlot.vue";
+    import GlobalHeatChartUnstyled from "@/components/GlobalHeatChart/unstyled/GlobalHeatChartUnstyled.vue";
+    import MassShootingPlotUnstyled from "@/components/MassShootingPlot/unstyled/MassShootingPlotUnstyled.vue";
 
     export default {
         name: "Index",
         components: {
-            GlobalHeatChart,
-            MassShootingPlot,
+            GlobalHeatChartUnstyled,
+            MassShootingPlotUnstyled,
         },
         data() {
             return {
@@ -15,7 +15,9 @@
             };
         },
         computed: {
-            ...mapState({}),
+            ...mapState({
+                chartStyle: state => state.chartStyle,
+            }),
         },
 
         methods: {},
@@ -33,12 +35,20 @@
                 dynamic and interactive D3 examples!
             </p>
         </div>
-        <div class="projects">
+        <div class="projects" v-if="chartStyle == 'styled'">
             <div class="project">
-                <MassShootingPlot />
+                TBD
             </div>
             <div class="project">
-                <GlobalHeatChart />
+                TBD
+            </div>
+        </div>
+        <div class="projects" v-if="chartStyle == 'unstyled'">
+            <div class="project">
+                <MassShootingPlotUnstyled />
+            </div>
+            <div class="project">
+                <GlobalHeatChartUnstyled />
             </div>
         </div>
     </MaxWidth>
@@ -51,7 +61,6 @@
         padding-top: 1em;
 
         .projects {
-
         }
 
         .project {

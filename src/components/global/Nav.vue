@@ -1,13 +1,11 @@
 <script>
-import {mapState} from "vuex";
+    import {mapState} from "vuex";
     export default {
         name: "Nav",
         components: {},
         props: {},
         data() {
-            return {
-
-            };
+            return {};
         },
         computed: {
             ...mapState({
@@ -16,9 +14,9 @@ import {mapState} from "vuex";
         },
         methods: {
             toggleChartStyle(style) {
-                this.$store.dispatch("setChartStyle", style)
-            }
-        }
+                this.$store.dispatch("setChartStyle", style);
+            },
+        },
     };
 </script>
 
@@ -29,18 +27,18 @@ import {mapState} from "vuex";
             <div class="right-col">
                 <div class="toggle">
                     <Button
+                        @click="toggleChartStyle('unstyled')"
+                        :class="{inactive: chartStyle != 'unstyled'}"
+                        class="toggle-button"
+                    >
+                        Bare Charts
+                    </Button>
+                    <Button
                         @click="toggleChartStyle('styled')"
                         :class="{inactive: chartStyle != 'styled'}"
                         class="toggle-button"
                     >
                         Styled Charts
-                    </Button>
-                    <Button
-                        @click="toggleChartStyle('unstyled')"
-                        :class="{inactive: chartStyle != 'unstyled'}"
-                        class="toggle-button"
-                    >
-                        Unstyled Charts
                     </Button>
                 </div>
             </div>
@@ -71,6 +69,7 @@ import {mapState} from "vuex";
                 border-radius: 4px;
                 background: var(--red-orange-700);
                 border: 4px solid var(--red-orange-700);
+                display: inline-flex;
             }
 
             .toggle-button {
