@@ -2,17 +2,18 @@
     import utils from "@/scripts/utils.js";
 
     import {scaleLinear, scaleUtc, range, line, scan, max, min, timeFormat} from "d3";
+    import {Delaunay} from "d3-delaunay";
 
     export default {
         name: "MassShootingPlot",
         props: {
             yAccessor: {
                 type: Function,
-                default: d => d.age_of_shooter,
+                default: d => parseInt(d.age_of_shooter),
             },
             xAccessor: {
                 type: Function,
-                default: d => new Date(d.date),
+                default: d => new Date(d.date.toString()),
             },
         },
         data() {
@@ -23,6 +24,13 @@
                 localDataUrl: "src/data/mass-shooting-mother-jones.csv",
 
                 data: [], // processed data
+
+                youngAdultRange: {
+                    // good ol "rent a car" age
+                    start: 0,
+                    end: 25,
+                },
+                decades: [0, 10, 20, 30, 40, 50, 60, 70],
 
                 dimensions: {
                     marginTop: 10,
@@ -44,15 +52,18 @@
                 hoveredTooltipCoords: {x: 0, y: 0},
                 hoveredPeriodData: {},
                 hoveredPeriodIndex: -1,
+
+                voronoiData: {},
             };
         },
         computed: {
             maxYValue() {
-                return max(this.data, this.yAccessor);
+                //return max(this.data, this.yAccessor);
+                return 76;
             },
             minYValue() {
-                //return 0
-                return min(this.data, this.yAccessor);
+                //return min(this.data, this.yAccessor);
+                return 0;
             },
             yearTicks() {
                 return range(1982, 2024, 8);
@@ -60,6 +71,43 @@
             middleYear() {
                 //from range above ^ in yearTicks
                 return 1982 + (2020 - 1982) / 2;
+            },
+            ageTicks() {
+                return range(0, 76, 10);
+            },
+            youngAdultCount() {
+                let count = this.data.filter(row => {
+                    let age = parseInt(row.age_of_shooter);
+                    if (
+                        age >= this.youngAdultRange.start &&
+                        age <= this.youngAdultRange.end
+                    ) {
+                        return true;
+                    }
+                });
+                return count.length;
+            },
+            countByDecade() {
+                let byDecade = {};
+
+                this.data.forEach(row => {
+                    let age = parseInt(row.age_of_shooter);
+                    let ageDecade = Math.floor(age / 10) * 10;
+
+                    if (!byDecade[ageDecade]) {
+                        byDecade[ageDecade] = [row];
+                    } else {
+                        byDecade[ageDecade].push(row);
+                    }
+                });
+
+                Object.keys(byDecade).forEach(decade => {
+                    byDecade[decade] = byDecade[decade].sort((a, b) => {
+                        return parseInt(a.age_of_shooter) - parseInt(b.age_of_shooter);
+                    });
+                });
+
+                return byDecade;
             },
         },
         methods: {
@@ -76,17 +124,15 @@
                 });
             },
             processData(data) {
-                let cleanData = []
+                let cleanData = [];
                 data.forEach(row => {
-                    let newDate = new Date(row.date)
-                    row.date = newDate
+                    let newDate = new Date(row.date);
+                    row.date = newDate;
                     cleanData.push(row);
-                })
+                });
                 this.data = cleanData.sort((a, b) => {
                     return new Date(a.date) - new Date(b.date);
                 });
-
-                this.isLoading = false;
             },
             setDimensions() {
                 let box = this.$refs.container?.getBoundingClientRect();
@@ -96,6 +142,7 @@
                     box.height - this.dimensions.marginTop - this.dimensions.marginBottom;
                 this.dimensions.boundedWidth =
                     box.width - this.dimensions.marginLeft - this.dimensions.marginRight;
+                this.isLoading = false;
                 this.setScales();
             },
             setScales() {
@@ -105,13 +152,42 @@
 
                 this.xScale = scaleUtc()
                     .domain([
-                        new Date('1982'), // we want the beginning of the years instead of the exact start/end dates
-                        new Date('2024'),
+                        new Date("1982"), // we want the beginning of the years instead of the exact start/end dates
+                        new Date("2024"),
                     ])
                     .range([0, this.dimensions.boundedWidth]);
                 this.yScale = scaleLinear()
                     .domain([this.maxYValue, this.minYValue - 0.25])
                     .range([0, this.dimensions.boundedHeight]);
+
+                this.setVoronoiData();
+            },
+            setVoronoiData() {
+                let dotCoords = this.data.map(row => {
+                    let x = this.xScale(this.xAccessor(row));
+                    let y = this.yScale(this.yAccessor(row));
+                    return {
+                        x,
+                        y,
+                    };
+                });
+                let delaunay = Delaunay.from(
+                    dotCoords,
+                    d => d.x,
+                    d => d.y
+                );
+                let voronoi = delaunay.voronoi([
+                    0,
+                    0,
+                    this.dimensions.boundedWidth,
+                    this.dimensions.boundedHeight,
+                ]);
+                let voronoiPaths = dotCoords.map((d, i) => ({
+                    d: voronoi.renderCell(i),
+                    ...d,
+                }));
+
+                this.voronoiData = {dotCoords, voronoiPaths, voronoi};
             },
             changeActiveDataset(newSet) {
                 if (!this.sources.includes(newSet)) {
@@ -120,18 +196,14 @@
                 this.activeSource = newSet;
             },
             setTooltip(e) {
-                let x = e.offsetX - this.dimensions.marginLeft; // left edge of the chart
-                let y = e.offsetY;
+                if (!this.voronoiData.voronoiPaths) return;
 
-                let hoveredDate = this.xScale.invert(x);
-                let getDistanceFromHoveredDate = d => {
-                    return Math.abs(
-                        this.xScale(this.xAccessor(d)) - this.xScale(hoveredDate)
-                    );
-                };
-                let closestIndex = scan(this.data, (a, b) => {
-                    return getDistanceFromHoveredDate(a) - getDistanceFromHoveredDate(b);
-                });
+                let mouseX = e.offsetX - this.dimensions.marginLeft; // left edge of the chart
+                let mouseY = e.offsetY;
+
+                let closestIndex = this.voronoiData.voronoi.delaunay.find(mouseX, mouseY);
+
+                let {x, y} = {...this.voronoiData.dotCoords[closestIndex]};
 
                 let attach = "right";
                 if (this.tooltipWidth + x > this.dimensions.boundedWidth) {
@@ -142,19 +214,19 @@
                 this.hoveredPeriodData = this.data[closestIndex];
                 this.hoveredPeriodIndex = closestIndex;
             },
-            // onMouseMove(e) {
-            //     utils.debounce(this.setTooltip(e), 9000);
-            // },
-            // onMouseLeave(e) {
-            //     this.hoveredTooltipCoords = {
-            //         x: 0,
-            //         y: 0,
-            //         attach: "right",
-            //         width: this.tooltipWidth,
-            //     };
-            //     this.hoveredPeriodData = {};
-            //     this.hoveredPeriodIndex = -1;
-            // },
+            onMouseMove(e) {
+                utils.debounce(this.setTooltip(e), 9000);
+            },
+            onMouseLeave(e) {
+                this.hoveredTooltipCoords = {
+                    x: 0,
+                    y: 0,
+                    attach: "right",
+                    width: this.tooltipWidth,
+                };
+                this.hoveredPeriodData = {};
+                this.hoveredPeriodIndex = -1;
+            },
         },
         watch: {
             data: {
@@ -198,7 +270,7 @@
         <div v-if="isLoading">Loading data...</div>
         <div class="chart-container" ref="container">
             <template v-if="!isLoading">
-                <!-- <div
+                <div
                     :style="{
                         transform: `translate(${
                             hoveredTooltipCoords.x + dimensions.marginLeft
@@ -206,8 +278,17 @@
                         opacity: hoveredPeriodData.date ? 1 : 0,
                     }"
                 >
-                   tooltip
-                </div> -->
+                    <MassShootingTooltip
+                        :data="hoveredPeriodData"
+                        :style="{
+                            transform: `translate(${
+                                hoveredTooltipCoords.attach == 'right' ? '5' : '-105'
+                            }%, 0%)`,
+                        }"
+                    />
+                </div>
+
+                <div>Under age 25: {{ youngAdultCount }}</div>
 
                 <svg
                     @mouseleave="onMouseLeave"
@@ -222,29 +303,11 @@
                         :height="dimensions.height"
                     ></rect> -->
                     <g
-                        :transform="`translate(${dimensions.marginLeft}, ${dimensions.marginTop})`"
-                    >
-                        <g class="data-plot">
-                            <g
-                                class="shooter-container"
-                                v-for="shooter in data"
-                                :key="shooter"
-                                :style="{
-                                    transform: `translate(${xScale(
-                                        xAccessor(shooter)
-                                    )}px, ${yScale(yAccessor(shooter))}px)`,
-                                }"
-                            >
-                                <circle r="4"></circle>
-                            </g>
-                        </g>
-                    </g>
-                    <g
                         class="axes"
                         :style="{
                             transform: `translate(0, ${dimensions.marginTop}px)`,
-                        }">
-                    </g>
+                        }"
+                    ></g>
                     <g
                         class="axes"
                         :style="{
@@ -281,27 +344,35 @@
                         />
                     </g>
                     <g
-                        class="7-ticks"
+                        class="y-ticks"
                         :style="{
-                            transform: `translate(${dimensions.marginLeft}px, ${
-                                dimensions.marginTop}px)`,
+                            transform: `translate(${dimensions.marginLeft - 10}px, ${
+                                dimensions.marginTop
+                            }px)`,
                         }"
                     >
                         <text
                             class="y-tick-label"
-
-
-                            y="20"
+                            v-for="age in ageTicks"
+                            :key="age"
+                            :y="yScale(age)"
                         >
-                            age
+                            {{ age }}
                         </text>
-                        <text
-                            class="x-tick-label"
-                            :x="xScale(new Date(middleYear.toString()))"
-                            :y="40"
+                        <g
+                            :style="{
+                                transform: `translate(-40px, ${yScale(38)}px)`,
+                            }"
                         >
-                            ages
-                        </text>
+                            <text
+                                class="y-tick-label"
+                                :x="0"
+                                :y="0"
+                                :style="{transform: `translate(0, 0px) rotate(-90deg)`}"
+                            >
+                                Ages
+                            </text>
+                        </g>
                     </g>
                     <g
                         class="x-ticks"
@@ -327,6 +398,40 @@
                         >
                             Year
                         </text>
+                    </g>
+
+                    <g
+                        :style="{
+                            transform: `translate(${dimensions.marginLeft}px, ${dimensions.marginTop}px)`,
+                        }"
+                        class="voronoi"
+                        :opacity="0.075"
+                        v-if="voronoiData?.voronoiPaths?.length"
+                    >
+                        <g v-for="path in voronoiData?.voronoiPaths" :key="path">
+                            <path
+                                stroke="black"
+                                strokeWidth="1"
+                                fill="transparent"
+                                :d="path.d"
+                            />
+                        </g>
+                    </g>
+                    <g
+                        class="data-plot"
+                        :transform="`translate(${dimensions.marginLeft}, ${dimensions.marginTop})`"
+                    >
+                        <g
+                            class="shooter-container"
+                            v-for="(shooter, index) in voronoiData.dotCoords"
+                            :key="shooter"
+                            :style="{
+                                transform: `translate(${shooter.x}px, ${shooter.y}px)`,
+                                fill: `${hoveredPeriodIndex == index ? 'red' : 'black'}`,
+                            }"
+                        >
+                            <circle r="4"></circle>
+                        </g>
                     </g>
                 </svg>
             </template>
@@ -368,7 +473,7 @@
             }
         }
 
-        .tooltip {
+        .mass-shooting-tooltip {
             position: absolute;
             transition: 10ms linear all;
         }
@@ -411,8 +516,7 @@
 
             .y-tick-label {
                 font-size: 0.7em;
-                fill: red;
-                text-anchor: middle;
+                text-anchor: end;
             }
 
             .x-tick-label {

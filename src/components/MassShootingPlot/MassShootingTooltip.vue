@@ -29,8 +29,8 @@
         }"
     >
         <div v-if="data?.year">
-            <!-- <div>year {{ data.year }}</div>
-            <div>mean {{ data.mean }}</div> -->
+            <div>{{ data.shooter_name }}, {{ data.age_of_shooter }}</div>
+            <div>{{ data.location }},{{ data.date }}</div>
         </div>
     </div>
 </template>

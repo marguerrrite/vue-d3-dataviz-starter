@@ -10,6 +10,7 @@
         "axios": "^0.24.0",
         "d3": "^7.2.1",
         "d3-array": "^3.1.1",
+        "d3-delaunay": "^6.0.2",
         "lodash": "^4.17.21",
         "markdown-it-anchor": "^8.4.1",
         "markdown-it-ins": "^3.0.1",
