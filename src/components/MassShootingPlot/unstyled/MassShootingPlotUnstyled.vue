@@ -476,7 +476,7 @@
             }
         }
 
-        .mass-shooting-tooltip {
+        .mass-shooting-tooltip-unstyled {
             position: absolute;
             transition: 10ms linear all;
         }
