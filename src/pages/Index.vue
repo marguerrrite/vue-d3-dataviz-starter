@@ -39,9 +39,9 @@
         <div class="project">
             <MassShootingPlot />
         </div>
-        <!-- <div class="project">
+        <div class="project">
             <GlobalHeatChart />
-        </div> -->
+        </div>
     </MaxWidth>
 </template>
 
