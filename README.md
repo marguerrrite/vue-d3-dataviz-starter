@@ -69,6 +69,7 @@ npm run dev
 
 #### Scatter plot
 - Mass shootings
+	-  https://www.motherjones.com/politics/2012/12/mass-shootings-mother-jones-full-data/
     -  https://data.world/marguerite/mother-jones-mass-shooting/workspace/file?filename=mass-shooting-mother-jones.csv
 
 

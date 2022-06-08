@@ -29,13 +29,16 @@
     <MaxWidth class="Index" size="m" v-if="isLoaded">
         <div>
             <p>
-                Starting projects is annoying. Here is a Vue + Vite setup with some D3
+                Starting projects is annoying. Here is a Vue + Vite setup with some dynamic and interactive D3
                 examples!
             </p>
+            <p>
+                Unstyled, Styled toggle
+            </p>
         </div>
-        <!-- <div class="project">
+        <div class="project">
             <MassShootingPlot />
-        </div> -->
+        </div>
         <div class="project">
             <GlobalHeatChart />
         </div>
