@@ -35,7 +35,7 @@
                 dimensions: {
                     marginTop: 10,
                     marginRight: 10,
-                    marginBottom: 60,
+                    marginBottom: 90,
                     marginLeft: 60,
                     boundedWidth: 0,
                     boundedHeight: 0,
@@ -276,6 +276,7 @@
                             hoveredTooltipCoords.x + dimensions.marginLeft
                         }px, ${hoveredTooltipCoords.y}px)`,
                         opacity: hoveredPeriodData.date ? 1 : 0,
+                        display: 'inline-block'
                     }"
                 >
                     <MassShootingTooltip
@@ -443,6 +444,7 @@
     .mass-shooting-plot {
         height: 100%;
         width: 100%;
+        overflow: hidden;
 
         .metas {
             margin-bottom: 2em;
@@ -486,7 +488,7 @@
 
         .chart {
             height: 100%;
-            max-height: 300px;
+            max-height: 400px;
 
             .data-path {
                 transition: all 100ms linear;
