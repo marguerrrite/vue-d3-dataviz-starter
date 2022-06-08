@@ -33,7 +33,7 @@
                 decades: [0, 10, 20, 30, 40, 50, 60, 70],
 
                 dimensions: {
-                    marginTop: 10,
+                    marginTop: 0,
                     marginRight: 10,
                     marginBottom: 90,
                     marginLeft: 60,
@@ -281,6 +281,7 @@
                 >
                     <MassShootingTooltip
                         :data="hoveredPeriodData"
+                        :width="tooltipWidth"
                         :style="{
                             transform: `translate(${
                                 hoveredTooltipCoords.attach == 'right' ? '5' : '-105'
@@ -447,7 +448,7 @@
         overflow: hidden;
 
         .metas {
-            margin-bottom: 2em;
+            margin-bottom: 0em;
 
             h1,
             h2,
