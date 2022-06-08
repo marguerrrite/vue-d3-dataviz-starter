@@ -3,19 +3,17 @@ import {createStore} from "vuex";
 const store = createStore({
     state() {
         return {
-            themeColor: typeof window !== 'undefined' && localStorage.getItem("mz____") ? JSON.parse(localStorage.getItem("mz____"))["theme"] : "light",
-            localStorageKey: "mz____",
+            chartStyle: typeof window !== 'undefined' && localStorage.getItem("d3cs____") ? JSON.parse(localStorage.getItem("d3cs____"))["style"] : "unstyled",
+            localStorageKey: "d3cs____",
             mode: "dev",
-            bananas: "bees",
-            data: [],
         };
     },
 
     mutations: {
-        setThemeColor(state, theme) {
-            // state.themeColor = theme;
-            // let storage = localStorage.getItem("mz____") ? JSON.parse(localStorage.getItem("mz____")) : {theme};
-            // localStorage.setItem(state.localStorageKey, JSON.stringify({theme}));
+        setChartStyle(state, style) {
+            state.chartStyle = style;
+            let storage = localStorage.getItem(state.localStorageKey) ? JSON.parse(localStorage.getItem(state.localStorageKey)) : {style};
+            localStorage.setItem(state.localStorageKey, JSON.stringify({style}));
         },
         setMode(state, mode) {
             state.mode = mode;
@@ -29,9 +27,9 @@ const store = createStore({
         setMode({commit}, mode) {
             commit("setMode", mode)
         },
-        setData({commit}, data) {
-            commit("setData", data)
-        }
+        setChartStyle({commit}, style) {
+            commit("setChartStyle", style)
+        },
     },
 });
 

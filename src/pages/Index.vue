@@ -7,7 +7,7 @@
         name: "Index",
         components: {
             GlobalHeatChart,
-            MassShootingPlot
+            MassShootingPlot,
         },
         data() {
             return {
@@ -29,18 +29,17 @@
     <MaxWidth class="Index" size="m" v-if="isLoaded">
         <div>
             <p>
-                Starting projects is annoying. Here is a Vue + Vite setup with some dynamic and interactive D3
-                examples!
-            </p>
-            <p>
-                Unstyled, Styled toggle
+                Starting projects can be annoying. Here is a Vue + Vite setup with some
+                dynamic and interactive D3 examples!
             </p>
         </div>
-        <div class="project">
-            <MassShootingPlot />
-        </div>
-        <div class="project">
-            <GlobalHeatChart />
+        <div class="projects">
+            <div class="project">
+                <MassShootingPlot />
+            </div>
+            <div class="project">
+                <GlobalHeatChart />
+            </div>
         </div>
     </MaxWidth>
 </template>
@@ -49,6 +48,11 @@
     @import "./../styles/globals";
     .Index {
         height: 100%;
+        padding-top: 1em;
+
+        .projects {
+
+        }
 
         .project {
             margin: 3em 0;

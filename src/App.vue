@@ -13,7 +13,6 @@
         },
         computed: {
             ...mapState({
-                themeColor: state => state.themeColor,
                 mode: state => state.mode
             }),
         },
@@ -36,7 +35,7 @@
 </script>
 
 <template>
-    <div class="app" :theme="themeColor">
+    <div class="app" theme="light">
         <div id="tooltip-teleport"></div>
         <Layout>
             <router-view :key="$route.path" />
@@ -45,8 +44,6 @@
 </template>
 
 <style lang="scss">
-    @import "src/styles/colorThemes.scss";
-
     .app, #app {
         width: 100%;
         height: 100%;

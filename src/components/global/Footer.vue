@@ -44,7 +44,20 @@
 <template>
     <MaxWidth class="footer__container" size="xl">
         <MaxWidth size="m" class="footer">
-
+            <div class="footer__left">
+                <Link to="https://marguerite.io" do-open-in-new-tab>
+                    <MargTitle size="xs" />
+                </Link>
+            </div>
+            <div class="footer__right">
+                <!-- <div>
+                    <h4>Resources</h4>
+                    <ul>
+                        <li>Vue</li>
+                        <li>D3</li>
+                    </ul>
+                </div> -->
+            </div>
         </MaxWidth>
     </MaxWidth>
 </template>

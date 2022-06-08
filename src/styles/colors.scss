@@ -1,5 +1,5 @@
 :root {
-    --grey-900: #111010;
+    --grey-900: #111010; // darker
     --grey-800: #3d3f42;
     --grey-700: #7d7f81;
     --grey-600: #a9aaab;
@@ -7,13 +7,19 @@
     --grey-400: #d4d4d5;
     --grey-300: #e9eaea;
     --grey-200: #f2f2f2;
-    --grey-100: #f9f9fa;
+    --grey-100: #f9f9fa; // lighter
 
     --neon-green-500: #00e100;
     --neon-green-300: #adff00;
 
     --neon-pink-500: #ff00db;
     --neon-pink-100: #ffe5fb;
+
+    --red-orange-900: #661a00;
+    --red-orange-800: #8a2908;
+    --red-orange-700: #cc3500;
+    --red-orange-500: #FF4200;
+    --red-orange-300: #ff7b4d;
 
     // brands
     --aclu-blue-lightest: #d5f2f7;
@@ -33,15 +39,4 @@
 
     --name-title-background: black;
     --name-title-background--hover: black;
-}
-
-[theme="dark"],
-:root {
-    --background-color: #21252b;
-    --text-base-color: #b6b6b6;
-
-    --accent-01: #d600ff;
-
-    --name-title-background: white;
-    --name-title-background--hover: white;
 }
