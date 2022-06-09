@@ -36,8 +36,12 @@
                     return -1;
                 }
             },
+            sources() {
+                return [...this.data.sources.split(";")];
+            },
         },
-        methods: {},
+        methods: {
+        },
         watch: {},
         mounted() {},
     };
@@ -47,7 +51,7 @@
     <div
         class="mass-shooting-tooltip"
         :style="{
-            width: `${width}px`,
+            'max-width': `${width}px`,
         }"
     >
         <div v-if="data?.year">
@@ -59,10 +63,13 @@
                     </div>
                     <div class="tag" v-if="isUnder30">Under 30</div>
                 </div>
-                <h5 class="date">{{ humanDate }}</h5>
+                <h5 class="date">{{ data.city }}</h5>
+                <h5 class="date">
+                    {{ data.case }}
+                </h5>
             </div>
             <div class="legality">
-                <div>
+                <!-- <div>
                     Obtained weapons legally:
                     {{
                         obtainedWeaponsLegally == 1
@@ -71,37 +78,50 @@
                             ? "no "
                             : "unknown"
                     }}
-                </div>
+                </div> -->
                 <div>
-                    Previous signs of mental health issues:
-                    {{ data.prior_signs_mental_health_issues }}
+                    Prior signs of mental health issues:
+                    {{
+                        data.prior_signs_mental_health_issues == "-" ||
+                        data.prior_signs_mental_health_issues == "TBD"
+                            ? "Unknown"
+                            : data.prior_signs_mental_health_issues
+                    }}
                 </div>
             </div>
-
-            <!-- <div class="summary">
-                {{ data.summary }}
-            </div> -->
+            <div class="summary">
+                <!-- <span v-for="source in sources" :key="source">{{source}}</span> -->
+            </div>
         </div>
     </div>
 </template>
 
 <style lang="scss">
     .mass-shooting-tooltip {
-        --tooltip-padding: 0.45em 0.55em;
+        --tooltip-padding: 0.7rem 0.9rem;
         --tooltip-rule: 1px solid var(--grey-300);
 
         background: white;
         width: 100%;
-        pointer-events: none;
         font-size: 0.85em;
         border-radius: 3px;
-        box-shadow: 0 2px 6px 0px rgba(black, 0.1);
+        box-shadow: 0 5px 10px 0px rgba(black, 0.35);
         border: 1px solid var(--grey-300);
+        min-height: 1em;
+        z-index: 200;
+
+        &:hover {
+            cursor: auto;
+        }
 
         .metas,
         .legality {
             padding: var(--tooltip-padding);
             border-bottom: var(--tooltip-rule);
+        }
+
+        .metas {
+            padding-top: 1.1rem;
         }
 
         .name {
@@ -130,23 +150,23 @@
         .top {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
         }
 
         .tag {
-            background: var(--forest-green-100);
-            color: var(--forest-green-700);
+            background: var(--red-orange-300);
+            color: white;
             font-size: 0.8em;
             padding: 0.125em 0.2em;
             font-weight: 600;
+            white-space: nowrap;
         }
 
         .summary {
             max-height: 50px;
             overflow-y: auto;
-            font-size: 0.85em;
             background: var(--grey-200);
-            padding: 0.5em;
+            padding: var(--tooltip-padding);
         }
     }
 </style>

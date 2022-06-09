@@ -41,7 +41,7 @@
                     marginTop: 20,
                     marginRight: 10,
                     marginBottom: 50,
-                    marginLeft: 60,
+                    marginLeft: 40,
                     boundedWidth: 0,
                     boundedHeight: 0,
                     height: 0,
@@ -58,7 +58,14 @@
                 hoveredPeriodData: {},
                 hoveredPeriodIndex: -1,
 
+                isTooltipLocked: false,
+
                 voronoiData: {},
+
+                calloutData: [
+                    {age: 25, description: "Rent a car"},
+                    {age: 21, description: "Drink legally"},
+                ],
             };
         },
         computed: {
@@ -249,21 +256,45 @@
                 this.hoveredPeriodIndex = closestIndex;
             },
             onMouseMove(e) {
+                if (this.isTooltipLocked) {
+                    return;
+                }
                 utils.debounce(this.setTooltip(e), 9000);
             },
             onMouseLeave(e) {
-                // this.hoveredTooltipCoords = {
-                //     x: 0,
-                //     y: 0,
-                //     attach: "right",
-                //     width: this.tooltipWidth,
-                // };
-                // this.hoveredPeriodData = {};
-                // this.hoveredPeriodIndex = -1;
+                if (this.isTooltipLocked) {
+                    return;
+                }
+
+                this.hoveredTooltipCoords = {
+                    x: 0,
+                    y: 0,
+                    attach: "right",
+                    width: this.tooltipWidth,
+                };
+                this.hoveredPeriodData = {};
+                this.hoveredPeriodIndex = -1;
+            },
+            lockTooltip() {
+                this.isTooltipLocked = !this.isTooltipLocked;
             },
             getHumanDate(date) {
                 let dateFormat = "%b %d, %Y";
                 return timeFormat(dateFormat)(date);
+            },
+            didShowPriorSigns(shooter) {
+                let value = shooter.prior_signs_mental_health_issues;
+                if (value.toLowerCase() == "yes") {
+                    return true;
+                }
+                return false;
+            },
+            didObtainLegally(shooter) {
+                let value = shooter.weapons_obtained_legally;
+                if (value.toLowerCase() == "yes") {
+                    return true;
+                }
+                return false;
             },
         },
         watch: {
@@ -292,7 +323,6 @@
 <template>
     <div class="mass-shooting-plot">
         <div class="metas">
-
             <h2>Majority of US Mass School Shooters Under 30 Years Old</h2>
             <h4>
                 Support universal background checks — especially under 30 years of age.
@@ -313,10 +343,24 @@
         <div class="chart-container" ref="container">
             <template v-if="!isLoading">
                 <div
+                    class="tooltip-date-container"
                     :style="{
                         transform: `translate(${
                             hoveredTooltipCoords.x + dimensions.marginLeft
-                        }px, ${hoveredTooltipCoords.y}px)`,
+                        }px, ${dimensions.boundedHeight}px)`,
+                        opacity: hoveredPeriodData.date ? 1 : 0,
+                    }"
+                >
+                    <div class="date-label">
+                        {{ getHumanDate(hoveredPeriodData.date) }}
+                    </div>
+                </div>
+                <div
+                    class="tooltip-container"
+                    :style="{
+                        transform: `translate(${
+                            hoveredTooltipCoords.x + dimensions.marginLeft
+                        }px, ${hoveredTooltipCoords.y + dimensions.marginTop}px)`,
                         opacity: hoveredPeriodData.date ? 1 : 0,
                     }"
                 >
@@ -324,18 +368,18 @@
                         :data="hoveredPeriodData"
                         :width="tooltipWidth"
                         :max-victim-data="maxVictimData"
-                        ref="shootingTooltip"
+                        :ref="'shootingTooltip'"
                         :style="{
                             transform: `translate(${
                                 hoveredTooltipCoords.attach == 'right' ? '5' : '-105'
-                            }%, 0%)`,
+                            }%, -50%)`,
                         }"
                     />
                 </div>
-
                 <svg
                     @mouseleave="onMouseLeave"
                     @mousemove="onMouseMove"
+                    @click="lockTooltip"
                     class="chart"
                     :width="dimensions.width"
                     :height="dimensions.height"
@@ -401,7 +445,8 @@
                             v-for="age in ageTicks"
                             :key="age"
                             class="age-tick"
-                            :x2="dimensions.boundedWidth"
+                            :x1="10"
+                            :x2="dimensions.boundedWidth + 10"
                             :y1="yScale(age.toString())"
                             :y2="yScale(age.toString())"
                             stroke="black"
@@ -461,22 +506,13 @@
                             :y2="dimensions.boundedHeight + 5"
                             stroke="black"
                         />
-                        <g
-                            :style="{
-                                transform: `translate(${hoveredTooltipCoords.x}px, ${dimensions.boundedHeight}px)`,
-                            }"
-                        >
-                            <text>
-                                {{ getHumanDate(hoveredPeriodData.date) }}
-                            </text>
-                        </g>
                     </g>
-                    <!-- <g
+                    <g
                         :style="{
                             transform: `translate(${dimensions.marginLeft}px, ${dimensions.marginTop}px)`,
                         }"
                         class="voronoi"
-                        :opacity="0.075"
+                        :opacity="0.03"
                         v-if="voronoiData?.voronoiPaths?.length"
                     >
                         <g v-for="path in voronoiData?.voronoiPaths" :key="path">
@@ -487,9 +523,10 @@
                                 :d="path.d"
                             />
                         </g>
-                    </g> -->
+                    </g>
                     <g
                         class="data-plot"
+                        v-if="!isLoading && this.data.length"
                         :transform="`translate(${dimensions.marginLeft}, ${dimensions.marginTop})`"
                     >
                         <g
@@ -501,8 +538,22 @@
                                 transform: `translate(${shooter.x}px, ${shooter.y}px)`,
                             }"
                         >
-                            <circle r="4"></circle>
-                            <circle class="dim" r="9"></circle>
+                            <g v-if="didShowPriorSigns(data[index])" class="prior-signs">
+                                <circle r="4"></circle>
+                                <circle
+                                    class="dim"
+                                    r="9"
+                                    :class="{legal: didObtainLegally(data[index])}"
+                                ></circle>
+                            </g>
+                            <g v-else>
+                                <circle r="4"></circle>
+                                <circle
+                                    class="dim"
+                                    r="9"
+                                    :class="{legal: didObtainLegally(data[index])}"
+                                ></circle>
+                            </g>
                         </g>
                     </g>
                 </svg>
@@ -516,8 +567,8 @@
         height: 100%;
         width: 100%;
         overflow: hidden;
-        background: #eeeffe;
-        padding: 1.3em;
+        //background: #383735;
+        //padding: 1.3em;
 
         --royal-blue-700: #155da1;
         --forest-green-700: #25442e;
@@ -525,6 +576,9 @@
         --forest-green-300: #a4c3ad;
         --forest-green-100: #dbe7de;
         --orange-500: #ff7102;
+
+        --prior-signs-circles: black;
+        --circles: var(--red-orange-800);
 
         h2 {
             line-height: 1.25;
@@ -563,9 +617,30 @@
             }
         }
 
+        .tooltip-container {
+        }
+
         .mass-shooting-tooltip {
             position: absolute;
+            width: max-content;
             transition: 10ms linear all;
+            z-index: 4000;
+        }
+
+        .tooltip-date-container {
+            position: absolute;
+
+            .date-label {
+                transform: translate(-50%, 107%);
+                background: var(--red-orange-800);
+                opacity: 0.8;
+                width: fit-content;
+                color: white;
+                font-size: 0.7em;
+                font-weight: 600;
+                padding: 0.135em 0.55em;
+                border-radius: 1px;
+            }
         }
 
         .chart-container {
@@ -580,6 +655,10 @@
         .chart {
             height: 100%;
             max-height: 700px;
+
+            &:hover {
+                cursor: pointer;
+            }
 
             .data-path {
                 transition: all 100ms linear;
@@ -632,10 +711,14 @@
                 opacity: 0.7;
             }
 
+            .y-date-text {
+                font-size: 0.8em;
+            }
+
             .highlight-30 {
                 rect {
-                    fill: var(--forest-green-500);
-                    opacity: 0.14;
+                    fill: var(--red-orange-500);
+                    opacity: 0.11;
 
                     // &.highlight {
                     //     opacity: 0.25;
@@ -643,22 +726,33 @@
                 }
             }
 
+            .voronoi {
+            }
+
             .shooter-container {
                 .dim {
-                    opacity: 0;
+                    opacity: 0.2;
+                }
+
+                .prior-signs {
+                    circle {
+                        fill: var(--prior-signs-circles);
+                    }
                 }
 
                 circle {
-                    fill: var(--royal-blue-700);
+                    fill: var(--circles);
                 }
 
                 &.hovered {
                     circle {
-                        fill: var(--orange-500);
+                        opacity: 1;
+                        fill: var(--red-orange-500);
                     }
 
                     .dim {
                         opacity: 0.3;
+                        fill: var(--red-orange-800);
                     }
                 }
             }

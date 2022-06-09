@@ -107,6 +107,10 @@
             display: flex;
             gap: 4em;
 
+            @media(max-width: 600px) {
+                flex-direction: column;
+            }
+
             .col-left {
                 max-width: 800px;
             }
