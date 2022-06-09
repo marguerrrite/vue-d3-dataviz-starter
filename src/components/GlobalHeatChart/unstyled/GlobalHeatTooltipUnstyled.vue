@@ -23,7 +23,7 @@
 
 <template>
     <div
-        class="global-heat-tooltp-unstyled"
+        class="global-heat-tooltip-unstyled"
         :style="{
             width: `${width}px`,
         }"

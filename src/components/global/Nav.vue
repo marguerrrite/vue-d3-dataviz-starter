@@ -23,7 +23,16 @@
 <template>
     <MaxWidth size="xl" class="nav">
         <MaxWidth size="m" class="contents">
-            <div class="left-col">vue-d3-dataviz-starter</div>
+            <div class="left-col">
+                <Link
+                    to="https://github.com/margueriteroth/vue-d3-dataviz-starter"
+                    do-open-in-new-tab
+                    no-decoration
+                    class="github-link"
+                >
+                    vue-d3-dataviz-starter
+                </Link>
+            </div>
             <div class="right-col">
                 <div class="toggle">
                     <Button
@@ -31,7 +40,7 @@
                         :class="{inactive: chartStyle != 'unstyled'}"
                         class="toggle-button"
                     >
-                        Bare Charts
+                        Unstyled Charts
                     </Button>
                     <Button
                         @click="toggleChartStyle('styled')"
@@ -58,6 +67,9 @@
         background: var(--red-orange-500);
         color: white;
         font-weight: 700;
+        position: fixed;
+        top: 0;
+        left: 0;
 
         .contents {
             display: flex;

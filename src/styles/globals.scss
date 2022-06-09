@@ -1,3 +1,7 @@
+// After years of using various css naming conventions,
+// I have settled on `no convention`, just legibility.
+// - Marguerite
+
 html,
 body,
 #root {
@@ -23,6 +27,11 @@ body {
             background: pink;
         }
     }
+
+    @media(max-width: 600px) {
+        font-size: 14px;
+    }
+
 }
 
 #app {

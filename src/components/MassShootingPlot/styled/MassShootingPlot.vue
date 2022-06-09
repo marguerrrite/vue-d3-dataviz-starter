@@ -5,7 +5,7 @@
     import {Delaunay} from "d3-delaunay";
 
     export default {
-        name: "MassShootingPlotUnstyled",
+        name: "MassShootingPlot",
         props: {
             yAccessor: {
                 type: Function,
@@ -32,10 +32,15 @@
                 },
                 decades: [0, 10, 20, 30, 40, 50, 60, 70],
 
+                filters: {
+                    //weapons_obtained_legally: false,
+                    summary: "school",
+                },
+
                 dimensions: {
-                    marginTop: 0,
+                    marginTop: 20,
                     marginRight: 10,
-                    marginBottom: 90,
+                    marginBottom: 50,
                     marginLeft: 60,
                     boundedWidth: 0,
                     boundedHeight: 0,
@@ -47,7 +52,7 @@
                 yScale: scaleLinear(),
 
                 dataPath: "",
-                tooltipWidth: 200,
+                tooltipWidth: 260,
 
                 hoveredTooltipCoords: {x: 0, y: 0},
                 hoveredPeriodData: {},
@@ -59,21 +64,21 @@
         computed: {
             maxYValue() {
                 //return max(this.data, this.yAccessor);
-                return 76;
+                return 55;
             },
             minYValue() {
                 //return min(this.data, this.yAccessor);
                 return 0;
             },
             yearTicks() {
-                return range(1982, 2024, 4);
+                return range(1982, 2024, 8);
             },
             middleYear() {
                 //from range above ^ in yearTicks
                 return 1982 + (2020 - 1982) / 2;
             },
             ageTicks() {
-                return range(0, 76, 10);
+                return range(0, 55, 15);
             },
             youngAdultCount() {
                 let count = this.data.filter(row => {
@@ -87,27 +92,33 @@
                 });
                 return count.length;
             },
-            countByDecade() {
-                let byDecade = {};
+            maxVictimData() {
+                let maxVictims = max(this.data, d => parseInt(d.total_victims));
+                let maxFatalities = max(this.data, d => parseInt(d.fatalities));
+                let maxInjured = max(this.data, d => parseInt(d.injured));
+                return {maxVictims, maxFatalities, maxInjured};
+            },
+            countBy15() {
+                let by15 = {};
 
                 this.data.forEach(row => {
                     let age = parseInt(row.age_of_shooter);
-                    let ageDecade = Math.floor(age / 10) * 10;
+                    let age15 = Math.floor(age / 15) * 15;
 
-                    if (!byDecade[ageDecade]) {
-                        byDecade[ageDecade] = [row];
+                    if (!by15[age15]) {
+                        by15[age15] = [row];
                     } else {
-                        byDecade[ageDecade].push(row);
+                        by15[age15].push(row);
                     }
                 });
 
-                Object.keys(byDecade).forEach(decade => {
-                    byDecade[decade] = byDecade[decade].sort((a, b) => {
+                Object.keys(by15).forEach(decade => {
+                    by15[decade] = by15[decade].sort((a, b) => {
                         return parseInt(a.age_of_shooter) - parseInt(b.age_of_shooter);
                     });
                 });
 
-                return byDecade;
+                return by15;
             },
         },
         methods: {
@@ -124,11 +135,34 @@
                 });
             },
             processData(data) {
+                if (!data) return;
                 let cleanData = [];
                 data.forEach(row => {
                     let newDate = new Date(row.date);
                     row.date = newDate;
                     cleanData.push(row);
+
+                    let cleanDataIndex = cleanData.length - 1;
+
+                    Object.keys(this.filters).forEach(filter => {
+                        // if filter is falsey, remove from clean data array
+
+                        if (
+                            filter == "weapons_obtained_legally" &&
+                            !this.filters[filter] &&
+                            row[filter] != "No"
+                        ) {
+                            cleanData.splice(cleanDataIndex, 1);
+                        }
+
+                        if (
+                            filter == "summary" &&
+                            this.filters[filter] &&
+                            !row[filter].toLowerCase().includes(this.filters[filter])
+                        ) {
+                            cleanData.splice(cleanDataIndex, 1);
+                        }
+                    });
                 });
                 this.data = cleanData.sort((a, b) => {
                     return new Date(a.date) - new Date(b.date);
@@ -218,14 +252,18 @@
                 utils.debounce(this.setTooltip(e), 9000);
             },
             onMouseLeave(e) {
-                this.hoveredTooltipCoords = {
-                    x: 0,
-                    y: 0,
-                    attach: "right",
-                    width: this.tooltipWidth,
-                };
-                this.hoveredPeriodData = {};
-                this.hoveredPeriodIndex = -1;
+                // this.hoveredTooltipCoords = {
+                //     x: 0,
+                //     y: 0,
+                //     attach: "right",
+                //     width: this.tooltipWidth,
+                // };
+                // this.hoveredPeriodData = {};
+                // this.hoveredPeriodIndex = -1;
+            },
+            getHumanDate(date) {
+                let dateFormat = "%b %d, %Y";
+                return timeFormat(dateFormat)(date);
             },
         },
         watch: {
@@ -252,10 +290,14 @@
 </script>
 
 <template>
-    <div class="mass-shooting-plot-unstyled">
+    <div class="mass-shooting-plot">
         <div class="metas">
-            <h2>Ages of US Mass Shooters Over Time, 1982 &ndash; 2022</h2>
-            <div class="description">
+
+            <h2>Majority of US Mass School Shooters Under 30 Years Old</h2>
+            <h4>
+                Support universal background checks — especially under 30 years of age.
+            </h4>
+            <!-- <div class="description">
                 Source:
                 <Link
                     to="https://www.motherjones.com/politics/2012/12/mass-shootings-mother-jones-full-data/"
@@ -264,7 +306,7 @@
                     Mother Jones
                 </Link>
             </div>
-            <label for=""> Last updated Jun 7, 2022 </label>
+            <label for=""> Last updated Jun 7, 2022 </label> -->
         </div>
 
         <div v-if="isLoading">Loading data...</div>
@@ -276,12 +318,13 @@
                             hoveredTooltipCoords.x + dimensions.marginLeft
                         }px, ${hoveredTooltipCoords.y}px)`,
                         opacity: hoveredPeriodData.date ? 1 : 0,
-                        display: 'inline-block'
                     }"
                 >
-                    <MassShootingTooltipUnstyled
+                    <MassShootingTooltip
                         :data="hoveredPeriodData"
                         :width="tooltipWidth"
+                        :max-victim-data="maxVictimData"
+                        ref="shootingTooltip"
                         :style="{
                             transform: `translate(${
                                 hoveredTooltipCoords.attach == 'right' ? '5' : '-105'
@@ -290,8 +333,6 @@
                     />
                 </div>
 
-                <div>Under age 25: {{ youngAdultCount }}</div>
-
                 <svg
                     @mouseleave="onMouseLeave"
                     @mousemove="onMouseMove"
@@ -299,36 +340,6 @@
                     :width="dimensions.width"
                     :height="dimensions.height"
                 >
-                    <!-- <rect
-                        :opacity="0.26"
-                        :width="dimensions.width"
-                        :height="dimensions.height"
-                    ></rect> -->
-                    <g
-                        class="axes"
-                        :style="{
-                            transform: `translate(0, ${dimensions.marginTop}px)`,
-                        }"
-                    ></g>
-                    <g
-                        class="axes"
-                        :style="{
-                            transform: `translate(${dimensions.marginLeft}px, ${dimensions.marginTop}px)`,
-                        }"
-                    >
-                        <!-- <line
-                            class="y-rule"
-                            :y2="dimensions.boundedHeight"
-                            stroke="black"
-                        /> -->
-                        <line
-                            class="x-rule"
-                            :x2="dimensions.boundedWidth"
-                            :y1="dimensions.boundedHeight"
-                            :y2="dimensions.boundedHeight"
-                            stroke="black"
-                        />
-                    </g>
                     <g
                         class="x-rules"
                         :style="{
@@ -345,8 +356,19 @@
                             stroke="black"
                         />
                     </g>
+                    <!-- <g
+                        class="age-highlight"
+                        :style="{
+                            transform: `translate(${dimensions.marginLeft}px, ${
+                                yScale('25') + dimensions.marginTop
+                            }px)`,
+                        }"
+                    >
+                        <text>Age to rent a car: 25</text>
+                        <line :x2="dimensions.boundedWidth" stroke="black"></line>
+                    </g> -->
                     <g
-                        class="y-ticks"
+                        class="y-axis"
                         :style="{
                             transform: `translate(${dimensions.marginLeft - 10}px, ${
                                 dimensions.marginTop
@@ -354,27 +376,36 @@
                         }"
                     >
                         <text
-                            class="y-tick-label"
-                            v-for="age in ageTicks"
+                            class="tick-label"
+                            v-for="(age, index) in ageTicks"
                             :key="age"
-                            :y="yScale(age)"
+                            :y="yScale(age) + 3"
                         >
-                            {{ age }}
+                            {{ index == ageTicks.length - 1 ? "Age" : "" }} {{ age }}
                         </text>
                         <g
                             :style="{
-                                transform: `translate(-40px, ${yScale(38)}px)`,
+                                transform: `translate(-24px, ${yScale(30)}px)`,
                             }"
                         >
-                            <text
-                                class="y-tick-label"
+                            <!-- <text
+                                class="axis-label"
                                 :x="0"
                                 :y="0"
                                 :style="{transform: `translate(0, 0px) rotate(-90deg)`}"
                             >
                                 Ages
-                            </text>
+                            </text> -->
                         </g>
+                        <line
+                            v-for="age in ageTicks"
+                            :key="age"
+                            class="age-tick"
+                            :x2="dimensions.boundedWidth"
+                            :y1="yScale(age.toString())"
+                            :y2="yScale(age.toString())"
+                            stroke="black"
+                        ></line>
                     </g>
                     <g
                         class="x-ticks"
@@ -385,23 +416,61 @@
                         }"
                     >
                         <text
-                            class="x-tick-label"
+                            class="tick-label"
                             v-for="year in yearTicks"
                             :key="year"
                             :x="xScale(new Date(year.toString()))"
-                            y="20"
+                            y="15"
                         >
                             {{ year }}
                         </text>
                         <text
-                            class="x-tick-label"
+                            class="axis-label"
                             :x="xScale(new Date(middleYear.toString()))"
                             :y="40"
                         >
                             Year
                         </text>
                     </g>
-
+                    <g
+                        class="highlight-30"
+                        :style="{
+                            transform: `translate(${dimensions.marginLeft}px, ${
+                                dimensions.marginTop + yScale('30')
+                            }px)`,
+                        }"
+                    >
+                        <rect
+                            :width="dimensions.boundedWidth"
+                            :height="yScale('11') - yScale('30')"
+                            :class="{highlight: hoveredPeriodData.age_of_shooter <= 30}"
+                        ></rect>
+                    </g>
+                    <g
+                        class="tooltip-elements"
+                        v-if="hoveredTooltipCoords.x"
+                        :style="{
+                            transform: `translate(${dimensions.marginLeft}px, ${dimensions.marginTop}px)`,
+                        }"
+                    >
+                        <line
+                            class="y-tooltip-rule"
+                            v-if="hoveredTooltipCoords.x"
+                            :x1="hoveredTooltipCoords.x"
+                            :x2="hoveredTooltipCoords.x"
+                            :y2="dimensions.boundedHeight + 5"
+                            stroke="black"
+                        />
+                        <g
+                            :style="{
+                                transform: `translate(${hoveredTooltipCoords.x}px, ${dimensions.boundedHeight}px)`,
+                            }"
+                        >
+                            <text>
+                                {{ getHumanDate(hoveredPeriodData.date) }}
+                            </text>
+                        </g>
+                    </g>
                     <!-- <g
                         :style="{
                             transform: `translate(${dimensions.marginLeft}px, ${dimensions.marginTop}px)`,
@@ -427,12 +496,13 @@
                             class="shooter-container"
                             v-for="(shooter, index) in voronoiData.dotCoords"
                             :key="shooter"
+                            :class="{hovered: hoveredPeriodIndex == index}"
                             :style="{
                                 transform: `translate(${shooter.x}px, ${shooter.y}px)`,
-                                fill: `${hoveredPeriodIndex == index ? 'red' : 'black'}`,
                             }"
                         >
                             <circle r="4"></circle>
+                            <circle class="dim" r="9"></circle>
                         </g>
                     </g>
                 </svg>
@@ -442,10 +512,23 @@
 </template>
 
 <style lang="scss">
-    .mass-shooting-plot-unstyled {
+    .mass-shooting-plot {
         height: 100%;
         width: 100%;
         overflow: hidden;
+        background: #eeeffe;
+        padding: 1.3em;
+
+        --royal-blue-700: #155da1;
+        --forest-green-700: #25442e;
+        --forest-green-500: #49875b;
+        --forest-green-300: #a4c3ad;
+        --forest-green-100: #dbe7de;
+        --orange-500: #ff7102;
+
+        h2 {
+            line-height: 1.25;
+        }
 
         .metas {
             margin-bottom: 0em;
@@ -465,6 +548,10 @@
             .description {
                 margin: 1em 0;
             }
+
+            @media (max-width: 600px) {
+                font-size: 14px;
+            }
         }
 
         .actions {
@@ -476,7 +563,7 @@
             }
         }
 
-        .mass-shooting-tooltip-unstyled {
+        .mass-shooting-tooltip {
             position: absolute;
             transition: 10ms linear all;
         }
@@ -484,12 +571,15 @@
         .chart-container {
             width: 100%;
             height: 100%;
-            height: 300px;
+            height: 330px;
+            background: white;
+            margin-top: 0.5em;
+            border-radius: 3px;
         }
 
         .chart {
             height: 100%;
-            max-height: 400px;
+            max-height: 700px;
 
             .data-path {
                 transition: all 100ms linear;
@@ -513,24 +603,63 @@
 
             .x-ticks {
                 .tick-label {
-                    font-size: 8px;
                     text-anchor: middle;
                 }
             }
 
-            .y-tick-label {
+            .axis-label {
                 font-size: 0.7em;
                 text-anchor: end;
+                opacity: 0.45;
             }
 
-            .x-tick-label {
-                font-size: 0.7em;
+            .tick-label {
+                font-size: 0.6em;
                 text-anchor: middle;
             }
 
             .y-axis {
                 .tick-label {
-                    font-size: 8px;
+                    text-anchor: end;
+                }
+            }
+
+            .age-tick {
+                opacity: 0.1;
+            }
+
+            .y-tooltip-rule {
+                opacity: 0.7;
+            }
+
+            .highlight-30 {
+                rect {
+                    fill: var(--forest-green-500);
+                    opacity: 0.14;
+
+                    // &.highlight {
+                    //     opacity: 0.25;
+                    // }
+                }
+            }
+
+            .shooter-container {
+                .dim {
+                    opacity: 0;
+                }
+
+                circle {
+                    fill: var(--royal-blue-700);
+                }
+
+                &.hovered {
+                    circle {
+                        fill: var(--orange-500);
+                    }
+
+                    .dim {
+                        opacity: 0.3;
+                    }
                 }
             }
         }

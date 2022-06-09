@@ -257,7 +257,6 @@
                             transform: `translate(${
                                 hoveredTooltipCoords.attach == 'right' ? '5' : '-105'
                             }%, -50%)`,
-                            border: '3px solid red',
                         }"
                     />
                 </div>
@@ -410,7 +409,7 @@
             }
         }
 
-        .tooltip {
+        .global-heat-tooltip-unstyled {
             position: absolute;
             transition: 10ms linear all;
         }
