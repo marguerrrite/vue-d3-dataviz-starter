@@ -41,7 +41,7 @@
                     marginTop: 20,
                     marginRight: 10,
                     marginBottom: 50,
-                    marginLeft: 40,
+                    marginLeft: 45,
                     boundedWidth: 0,
                     boundedHeight: 0,
                     height: 0,
@@ -54,11 +54,14 @@
                 dataPath: "",
                 tooltipWidth: 260,
 
+                previousAttach: "right", // for fixing the flicker when sliding over
                 hoveredTooltipCoords: {x: 0, y: 0},
                 hoveredPeriodData: {},
                 hoveredPeriodIndex: -1,
 
                 isTooltipLocked: false,
+
+                legend: ["Assailant", "Assailant with prior signs mental health issues"],
 
                 voronoiData: {},
 
@@ -78,6 +81,9 @@
                 return 0;
             },
             yearTicks() {
+                return range(1982, 2024, 2);
+            },
+            yearLabels() {
                 return range(1982, 2024, 8);
             },
             middleYear() {
@@ -126,6 +132,10 @@
                 });
 
                 return by15;
+            },
+            priorSignCount() {
+                let count = this.data.filter(row => this.didShowPriorSigns(row));
+                return count.length;
             },
         },
         methods: {
@@ -369,6 +379,7 @@
                         :width="tooltipWidth"
                         :max-victim-data="maxVictimData"
                         :ref="'shootingTooltip'"
+                        :class="{locked: isTooltipLocked}"
                         :style="{
                             transform: `translate(${
                                 hoveredTooltipCoords.attach == 'right' ? '5' : '-105'
@@ -390,9 +401,18 @@
                             transform: `translate(${dimensions.marginLeft}px, ${dimensions.marginTop}px)`,
                         }"
                     >
-                        <line
+                        <!-- <line
                             class="y-rule"
                             v-for="year in yearTicks"
+                            :key="year"
+                            :x1="xScale(new Date(year.toString()))"
+                            :x2="xScale(new Date(year.toString()))"
+                            :y2="dimensions.boundedHeight"
+                            stroke="black"
+                        /> -->
+                        <line
+                            class="y-rule"
+                            v-for="year in yearLabels"
                             :key="year"
                             :x1="xScale(new Date(year.toString()))"
                             :x2="xScale(new Date(year.toString()))"
@@ -462,7 +482,7 @@
                     >
                         <text
                             class="tick-label"
-                            v-for="year in yearTicks"
+                            v-for="year in yearLabels"
                             :key="year"
                             :x="xScale(new Date(year.toString()))"
                             y="15"
@@ -472,7 +492,7 @@
                         <text
                             class="axis-label"
                             :x="xScale(new Date(middleYear.toString()))"
-                            :y="40"
+                            :y="34"
                         >
                             Year
                         </text>
@@ -505,6 +525,7 @@
                             :x2="hoveredTooltipCoords.x"
                             :y2="dimensions.boundedHeight + 5"
                             stroke="black"
+                            :opacity="isTooltipLocked ? 0.7 : 0.4"
                         />
                     </g>
                     <g
@@ -558,6 +579,25 @@
                     </g>
                 </svg>
             </template>
+        </div>
+        <div class="chart-legend">
+            <div
+                v-for="key in legend"
+                :key="key"
+                :class="`legend-key legend-key-${
+                    key.toLowerCase().includes('prior') ? 'prior-signs' : ''
+                }`"
+            >
+                <div class="icon">
+                    <svg width="14" height="14">
+                        <circle cx="7" cy="7" r="3"></circle>
+                        <circle class="dim" cx="7" cy="7" r="7"></circle>
+                    </svg>
+                </div>
+                <div>
+                    {{ key }}
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -625,6 +665,11 @@
             width: max-content;
             transition: 10ms linear all;
             z-index: 4000;
+            transition: all 50ms linear;
+
+            &.locked {
+                box-shadow: 0 5px 10px 0px rgba(black, 0.35);
+            }
         }
 
         .tooltip-date-container {
@@ -633,7 +678,6 @@
             .date-label {
                 transform: translate(-50%, 107%);
                 background: var(--red-orange-800);
-                opacity: 0.8;
                 width: fit-content;
                 color: white;
                 font-size: 0.7em;
@@ -655,10 +699,6 @@
         .chart {
             height: 100%;
             max-height: 700px;
-
-            &:hover {
-                cursor: pointer;
-            }
 
             .data-path {
                 transition: all 100ms linear;
@@ -708,7 +748,7 @@
             }
 
             .y-tooltip-rule {
-                opacity: 0.7;
+                transition: all 50ms linear;
             }
 
             .y-date-text {
@@ -753,6 +793,37 @@
                     .dim {
                         opacity: 0.3;
                         fill: var(--red-orange-800);
+                    }
+                }
+            }
+        }
+
+        .chart-legend {
+            display: flex;
+            align-items: center;
+            gap: 2em;
+            font-size: 0.8em;
+
+            .legend-key {
+                display: flex;
+                gap: 0.25em;
+                align-items: end;
+
+                .dim {
+                    opacity: 0.2;
+                }
+
+                .icon {
+                    transform: translateY(12.5%);
+                }
+
+                circle {
+                    fill: var(--circles);
+                }
+
+                &-prior-signs {
+                    circle {
+                        fill: var(--prior-signs-circles);
                     }
                 }
             }

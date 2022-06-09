@@ -105,7 +105,7 @@
         width: 100%;
         font-size: 0.85em;
         border-radius: 3px;
-        box-shadow: 0 5px 10px 0px rgba(black, 0.35);
+        box-shadow: 0 5px 10px 0px rgba(black, 0.15);
         border: 1px solid var(--grey-300);
         min-height: 1em;
         z-index: 200;

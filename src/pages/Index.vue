@@ -41,7 +41,9 @@
                             with some dynamic and interactive D3 examples! Aka D3
                             Stickies.
                         </p>
-
+                        <p>
+                            Both Unstyled and Styled charts are included.
+                        </p>
                     </div>
                 </div>
                 <div class="projects" v-if="chartStyle == 'styled'">
