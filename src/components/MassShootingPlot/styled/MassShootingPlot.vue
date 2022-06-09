@@ -33,7 +33,6 @@
                 decades: [0, 10, 20, 30, 40, 50, 60, 70],
 
                 filters: {
-                    //weapons_obtained_legally: false,
                     summary: "school",
                 },
 
@@ -53,6 +52,7 @@
 
                 dataPath: "",
                 tooltipWidth: 260,
+                tooltipHeight: 190,
 
                 previousAttach: "right", // for fixing the flicker when sliding over
                 hoveredTooltipCoords: {x: 0, y: 0},
@@ -252,6 +252,7 @@
                 let mouseX = e.offsetX - this.dimensions.marginLeft; // left edge of the chart
                 let mouseY = e.offsetY - this.dimensions.marginTop;
 
+
                 let closestIndex = this.voronoiData.voronoi.delaunay.find(mouseX, mouseY);
 
                 let {x, y} = {...this.voronoiData.dotCoords[closestIndex]};
@@ -260,6 +261,18 @@
                 if (this.tooltipWidth + x > this.dimensions.boundedWidth) {
                     attach = "left";
                 }
+
+                let halfTooltipHeight = this.tooltipHeight / 2;
+
+                if (y + halfTooltipHeight > this.dimensions.boundedHeight) {
+                    // restrict bottom bounds
+                    y = y - ((y + halfTooltipHeight) - this.dimensions.boundedHeight);
+                } else if (y - (halfTooltipHeight) < 0) {
+                    // restrict top bounds
+                    y = halfTooltipHeight;
+                }
+
+
 
                 this.hoveredTooltipCoords = {x, y, attach};
                 this.hoveredPeriodData = this.data[closestIndex];
@@ -335,9 +348,9 @@
         <div class="metas">
             <h2>Majority of US Mass School Shooters Under 30 Years Old</h2>
             <h4>
-                Support universal background checks — especially under 30 years of age.
+                Aug 02, 1982 &ndash; May 24, 2022
             </h4>
-            <!-- <div class="description">
+            <div class="description">
                 Source:
                 <Link
                     to="https://www.motherjones.com/politics/2012/12/mass-shootings-mother-jones-full-data/"
@@ -346,7 +359,7 @@
                     Mother Jones
                 </Link>
             </div>
-            <label for=""> Last updated Jun 7, 2022 </label> -->
+
         </div>
 
         <div v-if="isLoading">Loading data...</div>
@@ -377,6 +390,7 @@
                     <MassShootingTooltip
                         :data="hoveredPeriodData"
                         :width="tooltipWidth"
+                        :height="tooltipHeight"
                         :max-victim-data="maxVictimData"
                         :ref="'shootingTooltip'"
                         :class="{locked: isTooltipLocked}"
@@ -598,6 +612,9 @@
                     {{ key }}
                 </div>
             </div>
+            <div class="total">
+                {{data.length}}
+            </div>
         </div>
     </div>
 </template>
@@ -641,6 +658,7 @@
 
             .description {
                 margin: 1em 0;
+                font-size: 0.8em;
             }
 
             @media (max-width: 600px) {

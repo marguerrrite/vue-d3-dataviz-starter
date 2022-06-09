@@ -11,6 +11,10 @@
                 type: Number,
                 default: 400,
             },
+            height: {
+                type: Number,
+                default: 100,
+            },
             maxVictimData: {
                 type: Object,
                 required: true,
@@ -52,6 +56,7 @@
         class="mass-shooting-tooltip"
         :style="{
             'max-width': `${width}px`,
+            'height': `${height}px`,
         }"
     >
         <div v-if="data?.year">
@@ -109,6 +114,7 @@
         border: 1px solid var(--grey-300);
         min-height: 1em;
         z-index: 200;
+        height: 100%;
 
         &:hover {
             cursor: auto;
