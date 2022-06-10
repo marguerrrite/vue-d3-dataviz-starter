@@ -19,6 +19,10 @@
                 type: Object,
                 required: true,
             },
+            noPointerEvents: {
+                type: Boolean,
+                default: false,
+            },
         },
         data() {
             return {};
@@ -30,6 +34,13 @@
             },
             isUnder30() {
                 return parseInt(this.data.age_of_shooter) <= 30;
+            },
+            didShowPriorSigns() {
+                let value = this.data.prior_signs_mental_health_issues;
+                if (value.toLowerCase() == "yes") {
+                    return true;
+                }
+                return false;
             },
             obtainedWeaponsLegally() {
                 if (this.data.weapons_obtained_legally.toLowerCase() == "yes") {
@@ -44,8 +55,7 @@
                 return [...this.data.sources.split(";")];
             },
         },
-        methods: {
-        },
+        methods: {},
         watch: {},
         mounted() {},
     };
@@ -55,8 +65,9 @@
     <div
         class="mass-shooting-tooltip"
         :style="{
-            'max-width': `${width}px`,
-            'height': `${height}px`,
+            width: `${width}px`,
+            height: `${height}px`,
+            'pointer-events': `${noPointerEvents ? 'none' : 'auto'}`,
         }"
     >
         <div v-if="data?.year">
@@ -66,7 +77,12 @@
                         {{ data.shooter_name }}
                         <span class="age">({{ data.age_of_shooter }})</span>
                     </div>
-                    <div class="tag" v-if="isUnder30">Under 30</div>
+                    <div class="tags">
+                        <div class="tag prior-signs" v-if="didShowPriorSigns">
+                            Prior signs
+                        </div>
+                        <div class="tag" v-if="isUnder30">Under 30</div>
+                    </div>
                 </div>
                 <h5 class="date">{{ data.city }}</h5>
                 <h5 class="date">
@@ -159,13 +175,27 @@
             align-items: flex-start;
         }
 
+        .tags {
+            display: flex;
+            flex-direction: column;
+            gap: 0.125em;
+            align-items: flex-end;
+        }
+
         .tag {
-            background: var(--red-orange-300);
+            background: #ffebe6;
             color: white;
             font-size: 0.8em;
             padding: 0.125em 0.2em;
             font-weight: 600;
             white-space: nowrap;
+            color: var(--red-orange-900);
+            border-radius: 2px;
+
+            &.prior-signs {
+                background: var(--red-orange-200);
+                color: white;
+            }
         }
 
         .summary {

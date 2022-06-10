@@ -15,6 +15,10 @@
             return {
                 isLoaded: false,
                 tech: ["Vue 3", "Vite", "D3.js", "CSV"],
+                titles: {
+                    shooting: "Background checks for all gun owners",
+                    heat: ""
+                }
             };
         },
         computed: {
@@ -51,7 +55,7 @@
                         <label class="unstyled">
                             <strong>Scatter Plot Styled</strong>
                         </label>
-                        <MassShootingPlot />
+                        <MassShootingPlot :title="titles.shooting"/>
                     </div>
                     <div class="project">
                         <label class="unstyled">
@@ -109,7 +113,7 @@
             display: flex;
             gap: 4em;
 
-            @media(max-width: 600px) {
+            @media(max-width: 700px) {
                 flex-direction: column;
             }
 
@@ -139,7 +143,8 @@
             padding: 0.25em;
             color: var(--grey-700);
             display: inline-block;
-            margin-bottom: 0.25em;
+            margin-bottom: 3em;
+            font-size: 0.75em;
         }
 
         .project {

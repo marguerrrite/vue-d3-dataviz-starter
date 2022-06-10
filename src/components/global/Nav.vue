@@ -86,7 +86,7 @@
 
             .toggle-button {
                 font-size: 0.85em;
-                background: rgba(black, 0.2);
+                background: rgba(black, 0.35);
                 border-radius: 3px;
                 color: white;
                 display: inline-flex;
@@ -94,7 +94,7 @@
 
                 &.inactive {
                     background: transparent;
-                    color: var(--red-orange-800);
+                    color: var(--red-orange-900);
                 }
             }
         }

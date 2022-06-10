@@ -15,6 +15,10 @@
                 type: Function,
                 default: d => new Date(d.date.toString()),
             },
+            title: {
+                type: String,
+                default: "",
+            },
         },
         data() {
             return {
@@ -40,7 +44,7 @@
                     marginTop: 20,
                     marginRight: 10,
                     marginBottom: 50,
-                    marginLeft: 45,
+                    marginLeft: 60,
                     boundedWidth: 0,
                     boundedHeight: 0,
                     height: 0,
@@ -65,9 +69,15 @@
 
                 voronoiData: {},
 
-                calloutData: [
-                    {age: 25, description: "Rent a car"},
-                    {age: 21, description: "Drink legally"},
+                calloutAges: [
+                    {age: 25, description: "Rent a car", emoji: "🚙"},
+                    {age: 21, description: "Drink alcohol", emoji: "🍺"},
+                    {age: 18, description: "Purchase cigarettes", emoji: "🚬"},
+                ],
+
+                calloutTragedies: [
+                    {case: "Columbine High School massacre"},
+                    {case: "Robb Elementary School massacre"},
                 ],
             };
         },
@@ -252,7 +262,6 @@
                 let mouseX = e.offsetX - this.dimensions.marginLeft; // left edge of the chart
                 let mouseY = e.offsetY - this.dimensions.marginTop;
 
-
                 let closestIndex = this.voronoiData.voronoi.delaunay.find(mouseX, mouseY);
 
                 let {x, y} = {...this.voronoiData.dotCoords[closestIndex]};
@@ -264,15 +273,22 @@
 
                 let halfTooltipHeight = this.tooltipHeight / 2;
 
-                if (y + halfTooltipHeight > this.dimensions.boundedHeight) {
-                    // restrict bottom bounds
-                    y = y - ((y + halfTooltipHeight) - this.dimensions.boundedHeight);
-                } else if (y - (halfTooltipHeight) < 0) {
-                    // restrict top bounds
-                    y = halfTooltipHeight;
-                }
+                // if (y + halfTooltipHeight > this.dimensions.boundedHeight) {
+                //     // restrict bottom bounds
+                //     y = y - (y + halfTooltipHeight - this.dimensions.boundedHeight);
+                // } else if (y - halfTooltipHeight < 0) {
+                //     // restrict top bounds
+                //     y = halfTooltipHeight;
+                // }
 
-
+                // // small widths
+                // if (this.tooltipWidth == 260 && this.tooltipWidth > x) {
+                //     this.tooltipWidth = x - 10;
+                // } else if (x + this.tooltipWidth > this.boundedWidth) {
+                //     this.tooltipWidth = this.boundedWidth - x;
+                // } else {
+                //     this.tooltipWidth = 260;
+                // }
 
                 this.hoveredTooltipCoords = {x, y, attach};
                 this.hoveredPeriodData = this.data[closestIndex];
@@ -346,20 +362,24 @@
 <template>
     <div class="mass-shooting-plot">
         <div class="metas">
-            <h2>Majority of US Mass School Shooters Under 30 Years Old</h2>
-            <h4>
-                Aug 02, 1982 &ndash; May 24, 2022
-            </h4>
-            <div class="description">
-                Source:
-                <Link
-                    to="https://www.motherjones.com/politics/2012/12/mass-shootings-mother-jones-full-data/"
-                    do-open-in-new-tab
-                >
-                    Mother Jones
-                </Link>
+            <div class="title-container">
+                <h2 class="title">{{ title }}</h2>
             </div>
-
+            <h3>Ages of US Mass School shooters since 1982</h3>
+            <div class="row">
+                <div class="description">
+                    Data period: Aug 02, 1982 &ndash; May 24, 2022
+                </div>
+                <div class="description">
+                    Data source:
+                    <Link
+                        to="https://www.motherjones.com/politics/2012/12/mass-shootings-mother-jones-full-data/"
+                        do-open-in-new-tab
+                    >
+                        Mother Jones
+                    </Link>
+                </div>
+            </div>
         </div>
 
         <div v-if="isLoading">Loading data...</div>
@@ -394,6 +414,7 @@
                         :max-victim-data="maxVictimData"
                         :ref="'shootingTooltip'"
                         :class="{locked: isTooltipLocked}"
+                        :no-pointer-events="!isTooltipLocked"
                         :style="{
                             transform: `translate(${
                                 hoveredTooltipCoords.attach == 'right' ? '5' : '-105'
@@ -511,7 +532,7 @@
                             Year
                         </text>
                     </g>
-                    <g
+                    <!-- <g
                         class="highlight-30"
                         :style="{
                             transform: `translate(${dimensions.marginLeft}px, ${
@@ -524,6 +545,34 @@
                             :height="yScale('11') - yScale('30')"
                             :class="{highlight: hoveredPeriodData.age_of_shooter <= 30}"
                         ></rect>
+                    </g> -->
+                    <g
+                        class="callout-data-container"
+                        :style="{
+                            transform: `translate(${dimensions.marginLeft - 20}px, ${
+                                dimensions.marginTop
+                            }px)`,
+                        }"
+                    >
+                        <line
+                            v-for="row in calloutAges"
+                            :key="row"
+                            class="callout-rule"
+                            :class="`${row.age == 25 ? 'car' : 'drink'}`"
+                            :x1="20"
+                            :x2="dimensions.boundedWidth + 20"
+                            :y1="yScale(row.age.toString())"
+                            :y2="yScale(row.age.toString())"
+                            stroke="black"
+                        ></line>
+                        <text
+                            v-for="row in calloutAges"
+                            :key="row"
+                            class="callout-label"
+                            :y="yScale(row.age.toString()) + 3"
+                        >
+                            {{ row.age }}
+                        </text>
                     </g>
                     <g
                         class="tooltip-elements"
@@ -547,7 +596,7 @@
                             transform: `translate(${dimensions.marginLeft}px, ${dimensions.marginTop}px)`,
                         }"
                         class="voronoi"
-                        :opacity="0.03"
+                        :opacity="0.3"
                         v-if="voronoiData?.voronoiPaths?.length"
                     >
                         <g v-for="path in voronoiData?.voronoiPaths" :key="path">
@@ -610,10 +659,12 @@
                 </div>
                 <div>
                     {{ key }}
+                    {{
+                        key.includes("prior")
+                            ? `(${priorSignCount} / ${data.length})`
+                            : `(Total: ${data.length})`
+                    }}
                 </div>
-            </div>
-            <div class="total">
-                {{data.length}}
             </div>
         </div>
     </div>
@@ -625,7 +676,8 @@
         width: 100%;
         overflow: hidden;
         //background: #383735;
-        //padding: 1.3em;
+        background: var(--red-orange-400);
+        padding: 1.3em;
 
         --royal-blue-700: #155da1;
         --forest-green-700: #25442e;
@@ -634,15 +686,18 @@
         --forest-green-100: #dbe7de;
         --orange-500: #ff7102;
 
-        --prior-signs-circles: black;
-        --circles: var(--red-orange-800);
-
-        h2 {
-            line-height: 1.25;
-        }
+        --prior-signs-circles: var(--red-orange-800);
+        --circles: rgba(black, 0.5);
 
         .metas {
             margin-bottom: 0em;
+
+            .row {
+                display: flex;
+                width: 100%;
+                align-items: baseline;
+                gap: 1em;
+            }
 
             h1,
             h2,
@@ -651,18 +706,30 @@
             }
 
             h3 {
-                opacity: 0.5;
-                font-weight: 500;
                 margin: 0.25em 0;
+                margin-top: 0.7em;
+                font-size: 1.15em;
+                border-top: 1px solid var(--grey-300);
+                padding-top: 1.25em;
             }
 
             .description {
-                margin: 1em 0;
                 font-size: 0.8em;
+                opacity: 0.6;
             }
 
             @media (max-width: 600px) {
                 font-size: 14px;
+            }
+        }
+
+        .title-container {
+            .title {
+                line-height: 1.25;
+                font-size: 3.5em;
+                font-family: "Covik Sans";
+                line-height: 0.8;
+                margin: 0 auto;
             }
         }
 
@@ -681,9 +748,8 @@
         .mass-shooting-tooltip {
             position: absolute;
             width: max-content;
-            transition: 10ms linear all;
             z-index: 4000;
-            transition: all 50ms linear;
+            transition: all 10ms linear;
 
             &.locked {
                 box-shadow: 0 5px 10px 0px rgba(black, 0.35);
@@ -695,7 +761,7 @@
 
             .date-label {
                 transform: translate(-50%, 107%);
-                background: var(--red-orange-800);
+                background: var(--grey-600);
                 width: fit-content;
                 color: white;
                 font-size: 0.7em;
@@ -712,6 +778,7 @@
             background: white;
             margin-top: 0.5em;
             border-radius: 3px;
+            max-width: 660px;
         }
 
         .chart {
@@ -741,6 +808,7 @@
             .x-ticks {
                 .tick-label {
                     text-anchor: middle;
+                    font-size: 0.6em;
                 }
             }
 
@@ -751,13 +819,14 @@
             }
 
             .tick-label {
-                font-size: 0.6em;
                 text-anchor: middle;
             }
 
             .y-axis {
                 .tick-label {
                     text-anchor: end;
+                    font-weight: 600;
+                    font-size: 0.7em;
                 }
             }
 
@@ -784,12 +853,31 @@
                 }
             }
 
+            .callout-data-container {
+                font-size: 0.65em;
+
+                .callout-label {
+                    fill: var(--red-orange-900);
+                    opacity: 0.9;
+                    text-anchor: start;
+                    letter-spacing: -0.06em;
+                    font-variant-numeric: tabular-nums;
+                }
+
+                .callout-rule {
+                    stroke-dasharray: 2;
+                    opacity: 0.4;
+                    fill: var(--red-orange-900);
+                }
+            }
+
             .voronoi {
+                opacity: 0;
             }
 
             .shooter-container {
                 .dim {
-                    opacity: 0.2;
+                    opacity: 0;
                 }
 
                 .prior-signs {
@@ -805,12 +893,10 @@
                 &.hovered {
                     circle {
                         opacity: 1;
-                        fill: var(--red-orange-500);
                     }
 
                     .dim {
                         opacity: 0.3;
-                        fill: var(--red-orange-800);
                     }
                 }
             }

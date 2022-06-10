@@ -35,7 +35,7 @@
                 dimensions: {
                     marginTop: 0,
                     marginRight: 10,
-                    marginBottom: 90,
+                    marginBottom: 40,
                     marginLeft: 60,
                     boundedWidth: 0,
                     boundedHeight: 0,
@@ -289,9 +289,6 @@
                         }"
                     />
                 </div>
-
-                <div>Under age 25: {{ youngAdultCount }}</div>
-
                 <svg
                     @mouseleave="onMouseLeave"
                     @mousemove="onMouseMove"
