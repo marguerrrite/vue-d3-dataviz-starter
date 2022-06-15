@@ -1,7 +1,7 @@
 <script>
 import utils from "@/scripts/utils.js";
 
-import { scaleLinear, scaleBand, scaleUtc, range, line, scan, max, curveCardinal, scaleSequential, interpolateCool } from "d3";
+import { scaleLinear, scaleBand, scaleUtc, range, line, scan, max, curveCardinal, scaleSequential, interpolateCool, interpolateRdYlBu, schemeRdYlBu } from "d3";
 
 export default {
     name: "GlobalHeatChart",
@@ -30,7 +30,7 @@ export default {
             dimensions: {
                 marginTop: 30,
                 marginRight: 30,
-                marginBottom: 50,
+                marginBottom: 60,
                 marginLeft: 60,
                 boundedWidth: 0,
                 boundedHeight: 0,
@@ -40,19 +40,19 @@ export default {
             xScale: scaleUtc(),
             yScale: scaleLinear(),
             xBandScale: scaleBand(),
+            colorScale: scaleSequential(),
 
             birth: 1989,
 
             period: {
-                start: 1940,
+                start: 1880,
                 end: 2022
             },
 
             barWidth: 1,
 
             dataPath: "",
-            //colorRange: ["#5577F5", "#F1E8E6", "#F55951"],
-            colorRange: ["yellow", "blue"],
+            colorRange: ["#F55951", "#F1E8E6", "#5577F5"],
 
             activeUnit: "f", // f || c
 
@@ -71,13 +71,13 @@ export default {
             //return max(this.data, this.yAccessor)
         },
         minYValue() {
-            return -0.5;
+            return -0.75;
         },
         yOffset() {
             return this.yScale(0.75);
         },
         decadeTicks() {
-            return range(this.period.start, this.period.end, 10);
+            return range(this.period.start, this.period.end, 20);
         },
         yearTicks() {
             return range(this.period.start, this.period.end, 2);
@@ -138,23 +138,25 @@ export default {
 
             // y scales
             this.yScale = scaleLinear()
-                .domain([this.maxYValue, this.minYValue - 0.25])
+                .domain([this.maxYValue, this.minYValue])
                 .range([0, this.dimensions.boundedHeight]);
+
+            let colorLinearScale = scaleLinear()
+                .domain([1, 0])
+                .range([0, this.dimensions.boundedHeight])
+            this.colorScale = scaleSequential(colorLinearScale.domain(), interpolateRdYlBu)
 
             let barPadding = 1;
             this.barWidth = this.xBandScale.bandwidth() - barPadding;
 
             this.generateLine();
         },
-        gradientColor(color) {
-            return scaleSequential(this.yScale.domain(), interpolateCool)
-        },
         generateLine() {
             let pathGenerator = () =>
                 line()
                     .x(d => this.xScale(new Date(d.year)))
                     .y(d => this.yScale(d.mean))
-                    .curve(curveCardinal);
+                    .curve(curveCardinal.tension(0.2));
 
             this.dataPath = pathGenerator()([...this.data]);
 
@@ -257,6 +259,9 @@ export default {
                 <h3>
                     10 warmest years on record have occurred since 2005
                 </h3>
+                <!-- <h3>
+                    10 warmest years on record have occurred since 2005
+                </h3> -->
                 <div class="description">
                     Monthly Temperature Anomalies °C, 1880 &ndash; 2022 &nbsp; &nbsp; &nbsp;
                     Source:
@@ -296,36 +301,33 @@ export default {
                         :height="dimensions.height">
 
                         <g :transform="`translate(${dimensions.marginLeft}, ${dimensions.marginTop})`">
-                            <!-- <rect :width="dimensions.boundedWidth" :height="dimensions.boundedHeight"></rect> -->
-                            <linearGradient gradient-units="userSpaceOnUse" id="heat-path-gradient"
-                                :y2="dimensions.marginTop" :y1="dimensions.boundedHeight + dimensions.marginTop" x2="0"
-                                x1="0">
-
-                                <stop v-for="color, index in colorRange" :key="color"
-                                    :offset="`${index / colorRange.length * 100}%`" />
-                                <!-- <stop offset="0%" :stop-color="colorRange[0]" />
-                                <stop offset="55%" :stop-color="colorRange[1]" /> -->
+                            <!-- <rect :fill="'url(#heat-path-gradient)'" :width="dimensions.boundedWidth"
+                                :height="dimensions.boundedHeight"></rect> -->
+                            <linearGradient x1="0" :y2="dimensions.marginTop" :y1="dimensions.boundedHeight" x2="0"
+                                gradientUnits="userSpaceOnUse" id="heat-path-gradient">
+                                <stop v-for="index in 10" :key="index" :stop-color="colorScale(index / 10)"
+                                    :offset="`${index * 10}%`" />
                             </linearGradient>
                             <path :d="dataPath" :stroke="'url(#heat-path-gradient)'" fill="none" class="data-path" />
                             <!-- <g
-                            v-for="bar in data"
-                            :key="bar"
-                            :style="{
-                                transform: `translate(${xBandScale(
-                                    parseInt(bar.year)
-                                )}px, 0px)`,
-                            }"
-                        >
-                            <rect
-                                :y="bar.mean < 0 ? yScale(0) : yScale(yAccessor(bar))"
-                                :width="barWidth"
-                                class="temp-rect"
-                                :height="Math.abs(yScale(bar.mean) - yScale(0))"
-                                :class="bar.mean < 0 ? 'temp-under' : 'temp-over'"
-                            ></rect>
-                        </g> -->
+                                v-for="bar in data"
+                                :key="bar"
+                                :style="{
+                                    transform: `translate(${xBandScale(
+                                        parseInt(bar.year)
+                                    )}px, 0px)`,
+                                }"
+                            >
+                                <rect
+                                    :y="bar.mean < 0 ? yScale(0) : yScale(yAccessor(bar))"
+                                    :width="barWidth"
+                                    class="temp-rect"
+                                    :height="Math.abs(yScale(bar.mean) - yScale(0))"
+                                    :class="bar.mean < 0 ? 'temp-under' : 'temp-over'"
+                                ></rect>
+                            </g> -->
                             <g class="x-ticks" :style="{
-                                transform: `translate(0, ${dimensions.boundedHeight}px)`,
+                                transform: `translate(0, ${dimensions.boundedHeight + 20}px)`,
                             }">
                                 <text class="tick-label" v-for="year in decadeTicks" :key="year"
                                     :x="xScale(new Date(year.toString()))" :style="{ transform: `translate(0, 10px)` }">
@@ -346,7 +348,7 @@ export default {
                                     :x2="xScale(new Date(year.toString()))" :class="`y-rule y-rule-${year} ${year % 10 == 0 && 'y-rule-decade'
                                     }`" :y1="yOffset" :y2="dimensions.boundedHeight" stroke="black" />
                                 <text class="x-tick-label" :x="xScale(new Date(middleYear.toString()))"
-                                    :y="dimensions.height - 10">
+                                    :y="dimensions.boundedHeight + 40">
                                     Year
                                 </text>
                             </g>
@@ -500,7 +502,6 @@ export default {
         width: 100%;
         height: 100%;
         height: 300px;
-        //max-width: 700px;
     }
 
     .chart {
@@ -509,11 +510,15 @@ export default {
         .data-path {
             stroke-width: 2;
             transition: all 100ms linear;
+
+            @media(min-width: 800px) {
+                stroke-width: 3;
+            }
         }
 
         .temp-rect {
             fill: royalblue;
-            opacity: 0.12;
+            opacity: 0.2;
         }
 
         .temp-over {
@@ -530,11 +535,11 @@ export default {
         }
 
         .y-rule {
-            opacity: 0.045;
+            opacity: 0.05;
             stroke: #8898ac;
 
             &-decade {
-                opacity: 0.125;
+                opacity: 0.15;
             }
         }
 
