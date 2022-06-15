@@ -2,6 +2,7 @@
 import utils from "@/scripts/utils.js";
 
 import { scaleLinear, scaleBand, scaleUtc, range, line, scan, max, curveCardinal, scaleSequential, interpolateCool, interpolateRdYlBu, schemeRdYlBu } from "d3";
+import Dropdown from "../../global/Dropdown.vue";
 
 export default {
     name: "GlobalHeatChart",
@@ -21,11 +22,8 @@ export default {
             resizeObserver: null,
 
             localDataUrl: "src/data/noaa-data.csv",
-
-            data: [], // processed data
-
-            activeSource: "average",
-            sources: [],
+            data: [],
+            filteredData: [],
 
             dimensions: {
                 marginTop: 30,
@@ -37,33 +35,34 @@ export default {
                 height: 0,
                 width: 0,
             },
+
             xScale: scaleUtc(),
             yScale: scaleLinear(),
             xBandScale: scaleBand(),
             colorScale: scaleSequential(),
             colorDataScale: scaleSequential(),
 
-            birth: 1989,
-
+            birthValue: '--',
             period: {
                 start: 1880,
                 end: 2022
             },
 
             barWidth: 1,
-
             dataPath: "",
+
             colorRange: ["#F55951", "#F1E8E6", "#5577F5"],
 
-            activeUnit: "f", // f || c
-
-            tooltipWidth: 170,
-
+            tooltipWidth: 180,
             hoveredTooltipCoords: { x: 0, y: 0 },
             hoveredPeriodData: {},
             hoveredPeriodIndex: -1,
 
             yTicks: [-0.5, 0, 0.5],
+
+            decadeTicks: [],
+            yearTicks: [],
+            middleYear: []
         };
     },
     computed: {
@@ -77,22 +76,28 @@ export default {
         yOffset() {
             return this.yScale(0.75);
         },
-        decadeTicks() {
-            return range(this.period.start, this.period.end, 20);
-        },
-        yearTicks() {
-            return range(this.period.start, this.period.end, 2);
-        },
-        middleYear() {
-            //from range above ^ in yearTicks
-            return this.period.start + (this.period.end - this.period.start) / 2;
-        },
+        dropdownSrc() {
+            let values = range(1920, 2030, 10);
+            let list = values.map(d => {
+                return {
+                    label: d + 's',
+                    value: d
+                }
+            })
+
+            list.push({
+                label: "--",
+                value: -1
+            })
+
+            return list.reverse();
+        }
     },
     methods: {
         loadData() {
             this.$papa.parse(this.localDataUrl, {
                 download: true,
-                header: true, // gives us a data object with the headers as key names
+                header: true,
                 error: (err, file, inputElem, reason) => {
                     console.log(reason);
                 },
@@ -106,9 +111,13 @@ export default {
             processedData.forEach(row => {
                 row.mean = parseFloat(row.mean);
             });
-
-            processedData = processedData.filter(row => row.year >= this.period.start && row.year <= this.period.end)
             this.data = processedData;
+            this.filteredData = this.data;
+        },
+        filterData() {
+            let data = [...this.data]
+            data = data.filter(row => row.year >= this.period.start && row.year <= this.period.end);
+            this.filteredData = data;
         },
         setDimensions() {
             let box = this.$refs.container?.getBoundingClientRect();
@@ -124,7 +133,6 @@ export default {
             if (!this.data[0]) {
                 return;
             }
-
             // x scales
             this.xScale = scaleUtc()
                 .domain([
@@ -135,63 +143,54 @@ export default {
             this.xBandScale = scaleBand()
                 .domain(range(this.period.start, this.period.end))
                 .range([0, this.dimensions.boundedWidth]);
-
-
             // y scales
             this.yScale = scaleLinear()
                 .domain([this.maxYValue, this.minYValue])
                 .range([0, this.dimensions.boundedHeight]);
-
             let colorLinearScale = scaleLinear()
                 .domain([1, 0])
-                .range([0, this.dimensions.boundedHeight])
-            this.colorScale = scaleSequential(colorLinearScale.domain(), interpolateRdYlBu)
-            this.colorDataScale = scaleSequential(this.yScale.domain(), interpolateRdYlBu)
-
+                .range([0, this.dimensions.boundedHeight]);
+            this.colorScale = scaleSequential(colorLinearScale.domain(), interpolateRdYlBu);
+            this.colorDataScale = scaleSequential(this.yScale.domain(), interpolateRdYlBu);
             let barPadding = 1;
             this.barWidth = this.xBandScale.bandwidth() - barPadding;
-
             this.generateLine();
+            this.setTicks();
         },
         generateLine() {
-            let pathGenerator = () =>
-                line()
-                    .x(d => this.xScale(new Date(d.year)))
-                    .y(d => this.yScale(d.mean))
-                    .curve(curveCardinal.tension(0.2));
-
-            this.dataPath = pathGenerator()([...this.data]);
-
+            let pathGenerator = () => line()
+                .x(d => this.xScale(new Date(d.year)))
+                .y(d => this.yScale(d.mean))
+                .curve(curveCardinal.tension(0.2));
+            this.dataPath = pathGenerator()([...this.filteredData]);
             this.isLoading = false;
-        },
-        changeActiveDataset(newSet) {
-            if (!this.sources.includes(newSet)) {
-                return;
-            }
-            this.activeSource = newSet;
         },
         setTooltip(e) {
             let x = e.offsetX - this.dimensions.marginLeft; // left edge of the chart
             let y = e.offsetY;
-
             let hoveredDate = this.xScale.invert(x);
             let getDistanceFromHoveredDate = d => {
-                return Math.abs(
-                    this.xScale(this.xAccessor(d)) - this.xScale(hoveredDate)
-                );
+                return Math.abs(this.xScale(this.xAccessor(d)) - this.xScale(hoveredDate));
             };
             let closestIndex = scan(this.data, (a, b) => {
                 return getDistanceFromHoveredDate(a) - getDistanceFromHoveredDate(b);
             });
-
             let attach = "right";
             if (this.tooltipWidth + x > this.dimensions.boundedWidth) {
                 attach = "left";
             }
-
             this.hoveredTooltipCoords = { x, y, attach };
             this.hoveredPeriodData = this.data[closestIndex];
             this.hoveredPeriodIndex = closestIndex;
+        },
+        setTicks() {
+            let decadeInterval = this.period.start > 1940 ? 10 : 20;
+            this.decadeTicks = range(this.period.start, this.period.end, decadeInterval);
+
+            let yearInterval = this.period.start > 1990 ? 1 : 2;
+            this.yearTicks = range(this.period.start, this.period.end, yearInterval);
+
+            this.middleYear = this.period.start + (this.period.end - this.period.start) / 2;
         },
         onMouseMove(e) {
             utils.debounce(this.setTooltip(e), 9000);
@@ -206,6 +205,17 @@ export default {
             this.hoveredPeriodData = {};
             this.hoveredPeriodIndex = -1;
         },
+        changePeriodStart(decade) {
+            if (decade == -1) {
+                // reset to all
+                this.period.start = 1880
+                this.birthValue = "--"
+            } else {
+                this.period.start = decade;
+                this.birthValue = decade + 's';
+            }
+
+        }
     },
     watch: {
         data() {
@@ -216,6 +226,7 @@ export default {
         period: {
             deep: true,
             handler() {
+                this.filterData();
                 this.setDimensions();
             }
         },
@@ -225,15 +236,13 @@ export default {
     },
     async mounted() {
         this.loadData();
-        this.resizeObserver = new ResizeObserver(
-            utils.animationFrame(this.setDimensions)
-        );
+        this.resizeObserver = new ResizeObserver(utils.animationFrame(this.setDimensions));
         this.resizeObserver.observe(this.$el);
     },
-
     beforeUnmount() {
         this.resizeObserver.disconnect();
     },
+    components: { Dropdown }
 };
 </script>
 
@@ -241,18 +250,6 @@ export default {
     <div class="global-heat-chart">
         <div class="metas">
             <h2>It's always the hottest decade (as of late 🔥😬)</h2>
-            <!-- <h3>
-                Global average surface temperatures have risen at a rate of about 0.73°C
-                per century
-            </h3>
-            <div class="description">
-                Monthly Temperature Anomalies °C, 1880 &ndash; 2016 &nbsp; &nbsp; &nbsp;
-                Source:
-                <Link to="https://datahub.io/core/global-temp#data" do-open-in-new-tab>
-                GISS Surface Temperature (GISTEMP) analysis and Climate at a Glance
-                (GCAG)
-                </Link>
-            </div> -->
         </div>
 
         <div v-if="isLoading">Loading data...</div>
@@ -261,44 +258,24 @@ export default {
                 <h3>
                     10 warmest years on record have occurred since 2005
                 </h3>
-                <!-- <h3>
-                    10 warmest years on record have occurred since 2005
-                </h3> -->
-                <div class="description">
-                    Monthly Temperature Anomalies °C, 1880 &ndash; 2022 &nbsp; &nbsp; &nbsp;
-                    Source:
-                    <Link to="https://www.ncdc.noaa.gov/cag/global/time-series" do-open-in-new-tab>
-                    NOAA
-                    </Link>
+            </div>
+            <div class="birth-actions">
+                <div>
+                    When were you born?
                 </div>
+                <Dropdown class="birth-decade-dropdown" :items="dropdownSrc" :value="birthValue"
+                    @selected="changePeriodStart" />
             </div>
             <div class="chart-container" ref="container">
-                <div class="chart-top">
-                    <div class="summary"></div>
-                    <div class="actions">
-                        <label for="">Data sources</label>
-                        <div class="toggle">
-                            <Button @click="changeActiveDataset(source)" :class="{ inactive: activeSource != source }"
-                                v-for="source in sources" class="toggle-button" :key="source">
-                                {{ source }}
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-
                 <template v-if="!isLoading">
                     <div :style="{
                         transform: `translate(${hoveredTooltipCoords.x + dimensions.marginLeft
                             }px, ${hoveredTooltipCoords.y}px)`,
                         opacity: hoveredPeriodData.year ? 1 : 0,
                     }">
-                        <GlobalHeatTooltip ref="heat-tooltip"
-                            class="tooltip"
-                            :data="hoveredPeriodData"
-                            :attach="hoveredTooltipCoords.attach"
-                            :scaled-color="colorDataScale(hoveredPeriodData.mean)"
-                            :width="tooltipWidth"
-                            :style="{
+                        <GlobalHeatTooltip ref="heat-tooltip" class="tooltip" :data="hoveredPeriodData"
+                            :attach="hoveredTooltipCoords.attach" :scaled-color="colorDataScale(hoveredPeriodData.mean)"
+                            :width="tooltipWidth" :style="{
                                 transform: `translate(${hoveredTooltipCoords.attach == 'right' ? '5' : '-105'
                                     }%, -50%)`,
                             }" />
@@ -384,6 +361,15 @@ export default {
                         </g>
                     </svg>
                 </template>
+            </div>
+            <div class="sources">
+                <div class="description">
+                    Monthly Temperature Anomalies °C, 1880 &ndash; 2022 &nbsp; &nbsp; &nbsp;
+                    Source:
+                    <Link to="https://www.ncdc.noaa.gov/cag/global/time-series" do-open-in-new-tab>
+                    NOAA
+                    </Link>
+                </div>
             </div>
         </div>
     </div>
@@ -504,10 +490,30 @@ export default {
             font-size: 1.15em;
             padding-top: 1.25em;
         }
+    }
 
+    .sources {
         .description {
-            font-size: 0.8em;
-            opacity: 0.6;
+            padding: 0 1.5rem;
+            font-size: 0.7em;
+            opacity: 0.35;
+            margin-bottom: 1em;
+            text-align: right;
+        }
+    }
+
+    .birth-actions {
+        padding: 0 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+        justify-content: center;
+        font-size: 0.8em;
+
+        .dropdown {
+            .options .button {
+                font-size: 1em;
+            }
         }
     }
 
