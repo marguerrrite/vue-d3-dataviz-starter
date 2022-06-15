@@ -41,6 +41,7 @@ export default {
             yScale: scaleLinear(),
             xBandScale: scaleBand(),
             colorScale: scaleSequential(),
+            colorDataScale: scaleSequential(),
 
             birth: 1989,
 
@@ -56,7 +57,7 @@ export default {
 
             activeUnit: "f", // f || c
 
-            tooltipWidth: 200,
+            tooltipWidth: 170,
 
             hoveredTooltipCoords: { x: 0, y: 0 },
             hoveredPeriodData: {},
@@ -145,6 +146,7 @@ export default {
                 .domain([1, 0])
                 .range([0, this.dimensions.boundedHeight])
             this.colorScale = scaleSequential(colorLinearScale.domain(), interpolateRdYlBu)
+            this.colorDataScale = scaleSequential(this.yScale.domain(), interpolateRdYlBu)
 
             let barPadding = 1;
             this.barWidth = this.xBandScale.bandwidth() - barPadding;
@@ -290,8 +292,13 @@ export default {
                             }px, ${hoveredTooltipCoords.y}px)`,
                         opacity: hoveredPeriodData.year ? 1 : 0,
                     }">
-                        <GlobalHeatTooltip ref="heat-tooltip" class="tooltip" :data="hoveredPeriodData"
-                            :width="tooltipWidth" :style="{
+                        <GlobalHeatTooltip ref="heat-tooltip"
+                            class="tooltip"
+                            :data="hoveredPeriodData"
+                            :attach="hoveredTooltipCoords.attach"
+                            :scaled-color="colorDataScale(hoveredPeriodData.mean)"
+                            :width="tooltipWidth"
+                            :style="{
                                 transform: `translate(${hoveredTooltipCoords.attach == 'right' ? '5' : '-105'
                                     }%, -50%)`,
                             }" />
@@ -327,7 +334,7 @@ export default {
                                 ></rect>
                             </g> -->
                             <g class="x-ticks" :style="{
-                                transform: `translate(0, ${dimensions.boundedHeight + 20}px)`,
+                                transform: `translate(0, ${dimensions.boundedHeight + 5}px)`,
                             }">
                                 <text class="tick-label" v-for="year in decadeTicks" :key="year"
                                     :x="xScale(new Date(year.toString()))" :style="{ transform: `translate(0, 10px)` }">
@@ -339,9 +346,13 @@ export default {
                                     :y1="yScale(rule)" :y2="yScale(rule)" x1="0" :x2="dimensions.boundedWidth"
                                     stroke="black" />
                             </g>
-                            <g class="y-tooltip" v-if="hoveredTooltipCoords.x">
+                            <g class="chart-tooltip-elements" v-if="hoveredTooltipCoords.x">
                                 <line :class="`y-rule y-rule-tooltip`" :x1="hoveredTooltipCoords.x"
                                     :x2="hoveredTooltipCoords.x" y1="0" :y2="dimensions.boundedHeight" stroke="black" />
+                                <circle class="tooltip-ball" :fill="colorDataScale(hoveredPeriodData.mean)"
+                                    :cx="hoveredTooltipCoords.x" :cy="yScale(hoveredPeriodData.mean)" r="4"></circle>
+                                <!-- <line :class="`x-rule x-rule-tooltip`" x1="0"
+                                    :x2="dimensions.boundedWidth" :y1="yScale(hoveredPeriodData.mean)" :y2="yScale(hoveredPeriodData.mean)" stroke="black" /> -->
                             </g>
                             <g class="y-ticks">
                                 <line v-for="year in yearTicks" :key="year" :x1="xScale(new Date(year.toString()))"
@@ -355,17 +366,19 @@ export default {
                             <g class="y-axis">
                                 <line class="y-rule" y1="0" :y2="dimensions.boundedHeight" stroke="black" />
                                 <text class="tick-label" v-for="tick in yTicks" :key="tick"
-                                    :y="yScale(tick) + yOffset / 2" :x="-25"
+                                    :y="yScale(tick) + yOffset / 2" :x="-20"
                                     :style="{ transform: `translate(0, -10px)` }">
                                     {{ tick }}
                                 </text>
                             </g>
-                            <g :style="{
-                                transform: `translate(-40px, ${yScale(0) - 4}px)`,
+                            <g class="y-axis-title" :style="{
+                                transform: `translate(-20px, ${yScale(0.7)}px)`,
                             }">
-                                <text class="y-tick-label" :x="0" :y="0"
-                                    :style="{ transform: `translate(0, 0px) rotate(-90deg)` }">
-                                    Mean (°C)
+                                <text class="tick-label" :x="0" :y="0" :style="{ transform: `translate(0, 0px)` }">
+                                    Mean
+                                </text>
+                                <text class="tick-label" :x="0" :y="10" :style="{ transform: `translate(0, 0px)` }">
+                                    °C
                                 </text>
                             </g>
                         </g>
@@ -543,18 +556,28 @@ export default {
             }
         }
 
+        .tooltip-ball {
+            stroke: var(--plum-700);
+        }
+
         .y-rule-tooltip {
             transition: 100ms linear all;
             opacity: 0.5;
         }
 
+        .y-axis-title {
+            .tick-label {
+                text-anchor: end;
+            }
+        }
+
+        .tick-label {
+            font-size: 8px;
+            text-anchor: middle;
+        }
+
         .x-ticks {
             fill: #8898ac;
-
-            .tick-label {
-                font-size: 8px;
-                text-anchor: middle;
-            }
         }
 
         .y-tick-label {
@@ -571,8 +594,9 @@ export default {
 
         .y-axis {
             .tick-label {
-                font-size: 8px;
-                fill: #8898ac;
+                font-size: 9px;
+                opacity: 0.5;
+                text-anchor: end;
             }
         }
     }
