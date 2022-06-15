@@ -42,11 +42,12 @@ export default {
             colorScale: scaleSequential(),
             colorDataScale: scaleSequential(),
 
-            birthValue: '--',
+            birthValue: '1980s',
             period: {
-                start: 1880,
+                start: 1980,
                 end: 2022
             },
+            tempSentiment: "yes",
 
             barWidth: 1,
             dataPath: "",
@@ -112,7 +113,7 @@ export default {
                 row.mean = parseFloat(row.mean);
             });
             this.data = processedData;
-            this.filteredData = this.data;
+            this.filterData();
         },
         filterData() {
             let data = [...this.data]
@@ -154,8 +155,10 @@ export default {
             this.colorDataScale = scaleSequential(this.yScale.domain(), interpolateRdYlBu);
             let barPadding = 1;
             this.barWidth = this.xBandScale.bandwidth() - barPadding;
+
             this.generateLine();
             this.setTicks();
+            this.setTempSentiment();
         },
         generateLine() {
             let pathGenerator = () => line()
@@ -192,6 +195,16 @@ export default {
 
             this.middleYear = this.period.start + (this.period.end - this.period.start) / 2;
         },
+        setTempSentiment() {
+            let hasNegativeAnomalies = this.filteredData.filter(d => d.mean < 0).length;
+            if (hasNegativeAnomalies) {
+                this.tempSentiment =
+                    "No, but barely. You have experienced a rare, distant decade with cooler-than-normal temperatures."
+            } else {
+                this.tempSentiment =
+                    "Yes — it has always been abnormally hot during your lifetime."
+            }
+        },
         onMouseMove(e) {
             utils.debounce(this.setTooltip(e), 9000);
         },
@@ -214,7 +227,6 @@ export default {
                 this.period.start = decade;
                 this.birthValue = decade + 's';
             }
-
         }
     },
     watch: {
@@ -256,15 +268,43 @@ export default {
         <div class="card">
             <div class="card-metas">
                 <h3>
-                    10 warmest years on record have occurred since 2005
+                    Has the world always been abnormally hot?
                 </h3>
-            </div>
-            <div class="birth-actions">
-                <div>
-                    When were you born?
+                <div class="birth-actions">
+                    <div>
+                        When were you born?
+                    </div>
+                    <Dropdown class="birth-decade-dropdown" :items="dropdownSrc" :value="birthValue"
+                        @selected="changePeriodStart" />
                 </div>
-                <Dropdown class="birth-decade-dropdown" :items="dropdownSrc" :value="birthValue"
-                    @selected="changePeriodStart" />
+            </div>
+            <div class="temperature-sentiment">
+                <template v-if="this.birthValue != '--'">
+                    {{ tempSentiment }}
+                </template>
+                <template v-else>
+                    No, but it has been rising steadily since the beginning of the 20th century and rising
+                    <Tooltip neon>
+                        <template #toggle><strong>twice as fast</strong></template>
+                        <template #contents>
+                            <div>
+                                <p>
+                                    Earth’s temperature has risen by 0.14° F (0.08° C) per decade since 1880, and the
+                                    rate
+                                    of warming over the past 40 years is more than twice that: 0.32° F (0.18° C) per
+                                    decade
+                                    since 1981.
+                                </p>
+                                <Link
+                                    do-open-in-new-tab
+                                    to="https://www.climate.gov/news-features/understanding-climate/climate-change-global-temperature">
+                                    - climage.gov
+                                </Link>
+                            </div>
+                        </template>
+                    </Tooltip>
+                    the last 40 years.
+                </template>
             </div>
             <div class="chart-container" ref="container">
                 <template v-if="!isLoading">
@@ -281,12 +321,12 @@ export default {
                             }" />
                     </div>
 
-                    <svg @mouseleave="onMouseLeave" @mousemove="onMouseMove" class="chart" :width="dimensions.width"
-                        :height="dimensions.height">
+                    <svg class="chart" :width="dimensions.width" :height="dimensions.height">
 
-                        <g :transform="`translate(${dimensions.marginLeft}, ${dimensions.marginTop})`">
-                            <!-- <rect :fill="'url(#heat-path-gradient)'" :width="dimensions.boundedWidth"
-                                :height="dimensions.boundedHeight"></rect> -->
+                        <g :transform="`translate(${dimensions.marginLeft}, ${dimensions.marginTop})`"
+                            @mouseleave="onMouseLeave" @mousemove="onMouseMove">
+                            <rect :fill="'transparent'" :width="dimensions.boundedWidth" :y="-yOffset"
+                                :height="dimensions.boundedHeight + yOffset"></rect>
                             <linearGradient x1="0" :y2="dimensions.marginTop" :y1="dimensions.boundedHeight" x2="0"
                                 gradientUnits="userSpaceOnUse" id="heat-path-gradient">
                                 <stop v-for="index in 10" :key="index" :stop-color="colorScale(index / 10)"
@@ -483,6 +523,9 @@ export default {
 
     .card-metas {
         padding: 0 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
 
         h3 {
             margin: 0;
@@ -502,18 +545,42 @@ export default {
         }
     }
 
-    .birth-actions {
+    .temperature-sentiment {
         padding: 0 1.5rem;
+        min-height: 3em;
+        height: 100%;
+        max-width: 550px;
+        margin-bottom: 1em;
+
+        strong {
+            font-weight: 600;
+        }
+
+        .tooltip-contents {
+            width: 400px;
+            font-size: 0.95em;
+        }
+    }
+
+    .birth-actions {
         display: flex;
         align-items: center;
+        width: fit-content;
         gap: 0.5em;
         justify-content: center;
         font-size: 0.8em;
+        position: relative;
 
         .dropdown {
             .options .button {
                 font-size: 1em;
             }
+        }
+
+        .filter-note {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
         }
     }
 
