@@ -64,9 +64,7 @@
         transition: all 100ms linear;
         padding-top: 1em;
         padding-bottom: 1em;
-        background: var(--red-orange-500);
-        background: white;
-        //color: white;
+        background: var(--grey-200);
         font-weight: 700;
         position: fixed;
         top: 0;
@@ -80,11 +78,8 @@
             .toggle {
                 overflow: hidden;
                 border-radius: 4px;
-                background: var(--red-orange-700);
-                border: 4px solid var(--red-orange-700);
-
-                background: var(--neon-green-300);
-                border: 4px solid var(--neon-green-300);
+                background: var(--grey-800);
+                border: 3px solid var(--grey-800);
                 display: inline-flex;
                 max-width: 306px;
                 width: 100%;
@@ -92,9 +87,8 @@
 
             .toggle-button {
                 font-size: 0.85em;
-                background: rgba(black, 0.35);
+                background: rgba(white, 0.85);
                 border-radius: 3px;
-                color: white;
                 display: inline-flex;
                 width: 153px;
                 white-space: nowrap;
@@ -110,7 +104,7 @@
 
                 &.inactive {
                     background: transparent;
-                    color: var(--red-orange-900);
+                    color: rgba(white, 0.5);
                 }
             }
         }

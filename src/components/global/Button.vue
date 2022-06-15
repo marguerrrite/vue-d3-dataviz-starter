@@ -23,13 +23,13 @@
 </script>
 
 <template>
-    <button class="Button" :class="[`size-${size}`, noStyle ? 'no-style' : '']">
+    <button class="button" :class="[`size-${size}`, noStyle ? 'no-style' : '']">
         <slot />
     </button>
 </template>
 
 <style lang="scss">
-    .Button {
+    .button {
         display: inline-block;
         border: none;
         margin: 0;

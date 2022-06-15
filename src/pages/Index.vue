@@ -18,7 +18,7 @@
                 isLoaded: false,
                 tech: ["Vue 3", "Vite", "D3.js", "CSV", "tooltips", "responsive"],
                 titles: {
-                    shooting: "Background checks for all gun owners",
+                    shooting: "Support background checks for all gun owners",
                     heat: ""
                 }
             };
@@ -47,12 +47,12 @@
                         </label>
                         <GlobalHeatChart />
                     </div>
-                    <!-- <div class="project">
+                    <div class="project">
                         <label class="unstyled">
                             <strong>Scatter Plot Styled</strong>
                         </label>
                         <MassShootingPlot :title="titles.shooting"/>
-                    </div> -->
+                    </div>
                 </div>
                 <div class="projects" v-if="chartStyle == 'unstyled'">
                     <div class="project">

@@ -76,7 +76,7 @@
 </script>
 
 <template>
-    <div class="Dropdown">
+    <div class="dropdown">
         <div class="toggle" @click="toggleOpenList" :class="{active: isListOpen, 'no-border': noBorder}">
             <div class="value">
                 {{ value }}
@@ -124,7 +124,7 @@
 </template>
 
 <style lang="scss">
-    .Dropdown {
+    .dropdown {
         position: relative;
         max-width: 8em;
         width: fit-content;
@@ -184,7 +184,7 @@
             position: absolute;
             background: var(--background-color);
             right: 0;
-            width: fit-content;
+            width: 100%;
             bottom: 0;
             transform: translateY(100%);
             z-index: 10;
