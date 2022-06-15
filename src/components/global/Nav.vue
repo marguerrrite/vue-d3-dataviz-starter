@@ -40,14 +40,14 @@
                         :class="{inactive: chartStyle != 'unstyled'}"
                         class="toggle-button"
                     >
-                        Unstyled Charts
+                        <div class="content">Unstyled Charts</div>
                     </Button>
                     <Button
                         @click="toggleChartStyle('styled')"
                         :class="{inactive: chartStyle != 'styled'}"
                         class="toggle-button"
                     >
-                        Styled Charts
+                        <div class="content">Styled Charts</div>
                     </Button>
                 </div>
             </div>
@@ -65,7 +65,8 @@
         padding-top: 1em;
         padding-bottom: 1em;
         background: var(--red-orange-500);
-        color: white;
+        background: white;
+        //color: white;
         font-weight: 700;
         position: fixed;
         top: 0;
@@ -81,7 +82,12 @@
                 border-radius: 4px;
                 background: var(--red-orange-700);
                 border: 4px solid var(--red-orange-700);
+
+                background: var(--neon-green-300);
+                border: 4px solid var(--neon-green-300);
                 display: inline-flex;
+                max-width: 306px;
+                width: 100%;
             }
 
             .toggle-button {
@@ -90,7 +96,17 @@
                 border-radius: 3px;
                 color: white;
                 display: inline-flex;
-                width: fit-content;
+                width: 153px;
+                white-space: nowrap;
+
+                @media (max-width: 700px) {
+                    width: 100%;
+                }
+
+                .content {
+                    width: 100%;
+                    text-align: center;
+                }
 
                 &.inactive {
                     background: transparent;

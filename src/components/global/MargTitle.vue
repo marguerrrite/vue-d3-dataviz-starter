@@ -432,30 +432,10 @@
             }
         }
 
-        .names {
-            // &:hover {
-            //     .green-name {
-            //         top: 0.25em;
-            //         //transform: scale(1.01);
-            //     }
-            //     .black-name {
-            //         svg {
-            //             transform-box: fill-box;
-            //             transform-origin: center;
-            //             transform: translateY(-0.05em);
-            //         }
-            //     }
-            // }
-        }
 
         .green-name {
-            path {
-                //fill: #ADFF00;
-                //fill: linear-gradient(0deg, rgba(255,67,255,1) 0%, rgba(44,80,253,1) 100%);
-            }
-
             position: absolute;
-            top: 0.2em;
+            top: 0.15em;
             left: 0;
         }
 

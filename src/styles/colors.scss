@@ -9,7 +9,9 @@
     --grey-200: #f2f2f2;
     --grey-100: #f9f9fa; // lighter
 
+    --neon-green-600: #00e100;
     --neon-green-500: #00e100;
+    --neon-green-400: #9ae200;
     --neon-green-300: #adff00;
 
     --neon-pink-500: #ff00db;
@@ -22,15 +24,23 @@
     --red-orange-300: #ff7b4d;
     --red-orange-200: #ab6551;
 
+    --plum-700: #361D32;
+    --plum-600: #543C52;
+    --red-500: #EDD2CB;
+    --dusty-rose-300: #EDD2CB;
+    --dusty-rose-200: #F1E8E6;
+
+    --cornflower-500: #5577F5;
+
+
     // brands
     --aclu-blue-lightest: #d5f2f7;
     --aclu-blue-light: #A3DAE2;
     --aclu-blue: #175FAF;
     --aclu-blue-dark: #130F54;
-}
 
-[theme="light"],
-:root {
+
+
     --background-color: white;
     --text-base-color: black;
 

@@ -37,10 +37,12 @@
 
 <style lang="scss">
     .global-heat-tooltip {
-        border: 1px solid;
         padding: 0.35em;
         background: white;
         width: 100%;
         pointer-events: none;
+        background: var(--dusty-rose-200);
+        color: var(--plum-700);
+        font-size: 0.8em;
     }
 </style>
