@@ -2,7 +2,6 @@
 import utils from "@/scripts/utils.js";
 import { scaleLinear, scaleUtc, range, max, timeFormat, interpolateRdPu } from "d3";
 import { Delaunay } from "d3-delaunay";
-import VuePapaParse from "vue-papa-parse";
 
 export default {
     name: "MassShootingPlot",
@@ -153,8 +152,6 @@ export default {
     },
     methods: {
         loadData() {
-            console.log('load')
-            console.log(this.$papa)
             this.$papa.parse(this.localDataUrl, {
                 download: true,
                 header: true, // gives us a data object with the headers as key names
