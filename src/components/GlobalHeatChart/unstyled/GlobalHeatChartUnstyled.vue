@@ -2,6 +2,7 @@
     import utils from "@/scripts/utils.js";
 
     import {scaleLinear, scaleUtc, range, line, scan} from "d3";
+    import VuePapaParse from "vue-papa-parse";
 
     export default {
         name: "GlobalHeatChartUnstyled",

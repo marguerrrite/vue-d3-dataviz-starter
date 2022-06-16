@@ -58,15 +58,15 @@ export default {
                         <MassShootingPlot :title="titles.shooting" />
                     </div>
                     <div class="project">
-                        <GlobalHeatChart />
+                        <!-- <GlobalHeatChart /> -->
                     </div>
                 </div>
                 <div class="projects" v-if="chartStyle == 'unstyled'">
                     <div class="project">
-                        <MassShootingPlotUnstyled />
+                        <!-- <MassShootingPlotUnstyled /> -->
                     </div>
                     <div class="project">
-                        <GlobalHeatChartUnstyled />
+                        <!-- <GlobalHeatChartUnstyled /> -->
                     </div>
                 </div>
             </div>
@@ -165,7 +165,7 @@ export default {
 
             ul {
                 list-style: none;
-                padding-left: 1em;
+                padding-left: 1.25em;
             }
 
             li:before {

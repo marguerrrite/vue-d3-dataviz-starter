@@ -3,6 +3,7 @@
 
     import {scaleLinear, scaleUtc, range, line, scan, max, min, timeFormat} from "d3";
     import {Delaunay} from "d3-delaunay";
+    import VuePapaParse from "vue-papa-parse";
 
     export default {
         name: "MassShootingPlotUnstyled",

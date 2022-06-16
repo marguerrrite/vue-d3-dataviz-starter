@@ -41,8 +41,8 @@ let router = createRouter({
 
 const head = createHead();
 
+app.use(VuePapaParse)
 app.use(store);
 app.use(router);
 app.use(head);
-app.use(VuePapaParse)
 app.mount("#app");
