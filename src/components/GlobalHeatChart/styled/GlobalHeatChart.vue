@@ -1,7 +1,7 @@
 <script>
 import utils from "@/scripts/utils.js";
 
-import { scaleLinear, scaleBand, scaleUtc, range, line, scan, max, curveCardinal, scaleSequential, interpolateCool, interpolateRdYlBu, schemeRdYlBu } from "d3";
+import { scaleLinear, scaleBand, scaleUtc, range, line, scan, max, curveCardinal, scaleSequential, interpolateRdYlBu } from "d3";
 import Dropdown from "../../global/Dropdown.vue";
 
 export default {

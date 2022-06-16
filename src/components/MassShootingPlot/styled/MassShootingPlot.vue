@@ -1,6 +1,6 @@
 <script>
 import utils from "@/scripts/utils.js";
-import { scaleLinear, scaleUtc, range, line, scan, max, min, timeFormat } from "d3";
+import { scaleLinear, scaleUtc, range, max, timeFormat, interpolateRdPu } from "d3";
 import { Delaunay } from "d3-delaunay";
 
 export default {
@@ -55,7 +55,7 @@ export default {
 
             dataPath: "",
             tooltipWidth: 260,
-            tooltipHeight: 190,
+            tooltipHeight: 100,
 
             previousAttach: "right", // for fixing the flicker when sliding over
             hoveredTooltipCoords: { x: 0, y: 0 },
@@ -101,6 +101,9 @@ export default {
         },
         ageTicks() {
             return range(0, 55, 15);
+        },
+        colorRange() {
+            return [interpolateRdPu(0.4), interpolateRdPu(0.85)].reverse();
         },
         youngAdultCount() {
             let count = this.data.filter(row => {
@@ -372,6 +375,25 @@ export default {
                 <h3>
                     Ages of US Mass School shooters since 1982
                 </h3>
+                <div class="chart-legend">
+                    <div v-for="key, index in legend" :key="key" :class="`legend-key legend-key-${key.toLowerCase().includes('prior') ? 'prior-signs' : ''
+                    }`">
+                        <div class="icon">
+                            <svg width="14" height="14">
+                                <circle :fill="colorRange[index]" cx="7" cy="7" r="3"></circle>
+                                <circle :fill="colorRange[index]" class="dim" cx="7" cy="7" r="7"></circle>
+                            </svg>
+                        </div>
+                        <div>
+                            {{ key }}
+                            {{
+                                    key.includes("prior")
+                                        ? `(${priorSignCount} / ${data.length})`
+                                        : `(Total: ${data.length})`
+                            }}
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="chart-container" ref="container">
                 <template v-if="!isLoading">
@@ -508,13 +530,15 @@ export default {
                                     transform: `translate(${shooter.x}px, ${shooter.y}px)`,
                                 }">
                                 <g v-if="didShowPriorSigns(data[index])" class="prior-signs">
-                                    <circle r="4"></circle>
-                                    <circle class="dim" r="9" :class="{ legal: didObtainLegally(data[index]) }">
+                                    <circle :fill="colorRange[1]" r="4"></circle>
+                                    <circle :fill="colorRange[1]" class="dim" r="9"
+                                        :class="{ legal: didObtainLegally(data[index]) }">
                                     </circle>
                                 </g>
                                 <g v-else>
-                                    <circle r="4"></circle>
-                                    <circle class="dim" r="9" :class="{ legal: didObtainLegally(data[index]) }">
+                                    <circle :fill="colorRange[0]" r="4"></circle>
+                                    <circle :fill="colorRange[0]" class="dim" r="9"
+                                        :class="{ legal: didObtainLegally(data[index]) }">
                                     </circle>
                                 </g>
                             </g>
@@ -524,10 +548,11 @@ export default {
             </div>
             <div class="sources">
                 <div class="description">
-                        Data period: Aug 02, 1982 &ndash; May 24, 2022
+                    Data period: Aug 02, 1982 &ndash; May 24, 2022
                     &nbsp; &nbsp; &nbsp;
                     Source:
-                    <Link to="https://www.motherjones.com/politics/2012/12/mass-shootings-mother-jones-full-data/" do-open-in-new-tab>
+                    <Link to="https://www.motherjones.com/politics/2012/12/mass-shootings-mother-jones-full-data/"
+                        do-open-in-new-tab>
                     Mother Jones
                     </Link>
                 </div>
@@ -587,9 +612,7 @@ export default {
     }
 
     .title-container {
-        .title {
-
-        }
+        .title {}
     }
 
     .actions {
@@ -759,14 +782,10 @@ export default {
             }
 
             .prior-signs {
-                circle {
-                    fill: var(--prior-signs-circles);
-                }
+                circle {}
             }
 
-            circle {
-                fill: var(--circles);
-            }
+            circle {}
 
             &.hovered {
                 circle {
@@ -791,12 +810,11 @@ export default {
     }
 
     .chart-legend {
-        padding: 0 1.5rem;
         display: flex;
         align-items: center;
         gap: 2em;
         font-size: 0.8em;
-        margin-bottom: 1em;
+        padding-top: 0.5em;
 
         .legend-key {
             display: flex;
@@ -809,16 +827,6 @@ export default {
 
             .icon {
                 transform: translateY(12.5%);
-            }
-
-            circle {
-                fill: var(--circles);
-            }
-
-            &-prior-signs {
-                circle {
-                    fill: var(--prior-signs-circles);
-                }
             }
         }
     }

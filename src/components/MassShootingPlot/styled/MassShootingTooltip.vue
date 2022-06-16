@@ -1,5 +1,5 @@
 <script>
-    import {scaleLinear, scaleUtc, range, line, scan, max, min, timeFormat} from "d3";
+    import {interpolateRdPu, timeFormat} from "d3";
     export default {
         name: "MassShootingTooltip",
         props: {
@@ -25,7 +25,9 @@
             },
         },
         data() {
-            return {};
+            return {
+                priorColor: interpolateRdPu(0.4)
+            };
         },
         computed: {
             humanDate() {
@@ -78,10 +80,12 @@
                         <span class="age">({{ data.age_of_shooter }})</span>
                     </div>
                     <div class="tags">
-                        <div class="tag prior-signs" v-if="didShowPriorSigns">
+                        <div class="tag prior-signs" v-if="didShowPriorSigns"
+                            :style="{
+                                background: priorColor
+                        }">
                             Prior signs
                         </div>
-                        <div class="tag" v-if="isUnder30">Under 30</div>
                     </div>
                 </div>
                 <h5 class="date">{{ data.city }}</h5>
@@ -89,8 +93,8 @@
                     {{ data.case }}
                 </h5>
             </div>
-            <div class="legality">
-                <!-- <div>
+            <!-- <div class="legality">
+                <div>
                     Obtained weapons legally:
                     {{
                         obtainedWeaponsLegally == 1
@@ -99,20 +103,11 @@
                             ? "no "
                             : "unknown"
                     }}
-                </div> -->
-                <div>
-                    Prior signs of mental health issues:
-                    {{
-                        data.prior_signs_mental_health_issues == "-" ||
-                        data.prior_signs_mental_health_issues == "TBD"
-                            ? "Unknown"
-                            : data.prior_signs_mental_health_issues
-                    }}
                 </div>
-            </div>
-            <div class="summary">
-                <!-- <span v-for="source in sources" :key="source">{{source}}</span> -->
-            </div>
+            </div> -->
+            <!-- <div class="summary">
+                <span v-for="source in sources" :key="source">{{source}}</span>
+            </div> -->
         </div>
     </div>
 </template>
@@ -139,7 +134,7 @@
         .metas,
         .legality {
             padding: var(--tooltip-padding);
-            border-bottom: var(--tooltip-rule);
+            //border-bottom: var(--tooltip-rule);
         }
 
         .metas {
