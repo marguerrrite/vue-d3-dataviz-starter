@@ -26,7 +26,7 @@ export default {
             <div class="left-col">
                 <Link to="https://github.com/margueriteroth/vue-d3-dataviz-starter" do-open-in-new-tab no-decoration
                     class="github-link">
-                    <StarterTitle/>
+                <StarterTitle />
                 </Link>
             </div>
             <div class="right-col">
@@ -55,9 +55,9 @@ export default {
     transition: all 100ms linear;
     padding-top: 1em;
     padding-bottom: 1em;
-    //background: var(--grey-200);
+    background: var(--grey-100);
     font-weight: 700;
-    //position: fixed;
+    position: fixed;
     top: 0;
     left: 0;
 
@@ -69,16 +69,16 @@ export default {
         .toggle {
             overflow: hidden;
             border-radius: 4px;
-            background: var(--grey-800);
-            border: 3px solid var(--grey-800);
+            background: white;
+            border: 5px solid white;
             display: inline-flex;
             max-width: 306px;
             width: 100%;
+            box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
         }
 
         .toggle-button {
             font-size: 0.85em;
-            background: rgba(white, 0.85);
             border-radius: 3px;
             display: inline-flex;
             width: 153px;
@@ -95,7 +95,7 @@ export default {
 
             &.inactive {
                 background: transparent;
-                color: rgba(white, 0.5);
+                color: rgba(black, 0.25);
             }
         }
     }

@@ -423,7 +423,7 @@ export default {
     //overflow: hidden;
 
     .metas {
-        margin-bottom: 2em;
+        margin-bottom: 1rem;
 
         h1,
         h2,
@@ -519,6 +519,7 @@ export default {
         border-radius: 4px;
         padding: 0.5em;
         width: 100%;
+        //height: 100%;
     }
 
     .card-metas {

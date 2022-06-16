@@ -16,7 +16,7 @@ export default {
     data() {
         return {
             isLoaded: false,
-            tech: ["Vue 3", "Vite", "D3.js", "CSV", "tooltips", "responsive areas", "voronoi paths", "color scales & interpolation"],
+            tech: ["Vue 3", "Vite", "D3", "CSV imports", "any-coordinate tooltips", "voronoi tooltips", "responsive layouts", "color scales & interpolation"],
             titles: {
                 shooting: "Support background checks for all gun owners",
                 heat: ""
@@ -42,29 +42,17 @@ export default {
             <div class="col-left">
                 <div class="projects" v-if="chartStyle == 'styled'">
                     <div class="project">
-                        <label class="unstyled">
-                            <strong>Scatter Plot Styled</strong>
-                        </label>
                         <MassShootingPlot :title="titles.shooting" />
                     </div>
                     <div class="project">
-                        <label class="unstyled">
-                            <strong>Line Chart Styled</strong>
-                        </label>
                         <GlobalHeatChart />
                     </div>
                 </div>
                 <div class="projects" v-if="chartStyle == 'unstyled'">
                     <div class="project">
-                        <label class="unstyled">
-                            <strong>Scatter Plot Unstyled</strong> 25 & Under US Mass Shooters
-                        </label>
                         <MassShootingPlotUnstyled />
                     </div>
                     <div class="project">
-                        <label class="unstyled">
-                            <strong> Line Chart Unstyled</strong> 25 & Under US Mass Shooters
-                        </label>
                         <GlobalHeatChartUnstyled />
                     </div>
                 </div>
@@ -76,21 +64,31 @@ export default {
                             vue-d3-dataviz-starter
                         </h3>
                         <p>
-                            Starting projects can be annoying. Here is a Vue + Vite setup
-                            with dynamic and interactive D3 examples — line chart, scatter plot.
+                            Here is a Vue + Vite setup with dynamic and interactive D3 examples — as of now, a line
+                            chart
+                            and scatter plot. 😊
                         </p>
                         <p>
-                            Unstyled and Styled chart components are included.
+                            <Link to="https://github.com/margueriteroth/vue-d3-dataviz-starter" do-open-in-new-tab
+                                class="github-link">
+                            Styled
+                            </Link> and
+                            <Link to="https://github.com/margueriteroth/vue-d3-dataviz-starter" do-open-in-new-tab
+                                class="github-link">
+                            Unstyled
+                            </Link> chart components are included in this
+                            repo.
                         </p>
                     </div>
                 </div>
                 <p>
                     <Link to="https://github.com/margueriteroth/vue-d3-dataviz-starter" do-open-in-new-tab is-button
                         class="github-link">
-                    Github repo
+                    Github repo <span class="font-inter">-></span>
                     </Link>
                 </p>
                 <ul>
+
                     <li v-for="item in tech" :key="item">
                         {{ item }}
                     </li>
@@ -108,7 +106,7 @@ export default {
 
 .Index {
     height: 100%;
-    padding-top: 1em;
+    padding-top: 8em;
 
     .page-content {
         display: flex;
@@ -133,6 +131,16 @@ export default {
             @media (max-width: 841px) {
                 max-width: 100%;
                 display: none;
+            }
+
+            ul {
+                list-style: none;
+                padding-left: 1.5em;
+            }
+
+            li:before {
+                content: "+";
+                margin-right: 0.75em;
             }
         }
     }
@@ -160,6 +168,7 @@ export default {
 
     .project {
         margin-bottom: 6em;
+        flex: 1;
     }
 }
 </style>

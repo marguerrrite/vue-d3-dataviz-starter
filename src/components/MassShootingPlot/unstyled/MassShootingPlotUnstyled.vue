@@ -218,14 +218,14 @@
                 utils.debounce(this.setTooltip(e), 9000);
             },
             onMouseLeave(e) {
-                this.hoveredTooltipCoords = {
-                    x: 0,
-                    y: 0,
-                    attach: "right",
-                    width: this.tooltipWidth,
-                };
-                this.hoveredPeriodData = {};
-                this.hoveredPeriodIndex = -1;
+                // this.hoveredTooltipCoords = {
+                //     x: 0,
+                //     y: 0,
+                //     attach: "right",
+                //     width: this.tooltipWidth,
+                // };
+                // this.hoveredPeriodData = {};
+                // this.hoveredPeriodIndex = -1;
             },
         },
         watch: {
@@ -271,6 +271,7 @@
         <div class="chart-container" ref="container">
             <template v-if="!isLoading">
                 <div
+                    class="chart-tooltip"
                     :style="{
                         transform: `translate(${
                             hoveredTooltipCoords.x + dimensions.marginLeft
@@ -473,7 +474,7 @@
             }
         }
 
-        .mass-shooting-tooltip-unstyled {
+        .chart-tooltip {
             position: absolute;
             transition: 10ms linear all;
         }

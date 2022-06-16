@@ -569,7 +569,7 @@ export default {
     --circles: rgba(black, 0.5);
 
     .metas {
-        margin-bottom: 2.5em;
+        margin-bottom: 1rem;
 
         .row {
             display: flex;
@@ -603,9 +603,7 @@ export default {
 
     .title-container {
         .title {
-            line-height: 1.25;
-            line-height: 0.8;
-            margin: 0 auto;
+
         }
     }
 
@@ -652,6 +650,7 @@ export default {
         border-radius: 4px;
         padding: 0.5em;
         width: 100%;
+        height: 100%;
     }
 
     .card-metas {
@@ -672,7 +671,6 @@ export default {
         background: white;
         margin-top: 0.5em;
         border-radius: 3px;
-        max-width: 900px;
     }
 
     .chart {
