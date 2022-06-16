@@ -24,14 +24,12 @@ export default {
     <MaxWidth size="xl" class="nav">
         <MaxWidth size="m" class="contents">
             <div class="left-col">
-                <Link to="/" no-decoration
-                    class="github-link">
-                <StarterTitle />
+                <Link to="/" no-decoration class="github-link" alt="vue-d3-dataviz-starter">
+                    <StarterTitle />
                 </Link>
             </div>
             <div class="right-col">
                 <div class="toggle">
-
                     <Button @click="toggleChartStyle('styled')" :class="{ inactive: chartStyle != 'styled' }"
                         class="toggle-button">
                         <div class="content">Styled <span>Charts</span></div>
@@ -117,7 +115,7 @@ export default {
 
             &.inactive {
                 background: transparent;
-                color: rgba(black, 0.25);
+                color: rgba(black, 0.65);
             }
         }
     }

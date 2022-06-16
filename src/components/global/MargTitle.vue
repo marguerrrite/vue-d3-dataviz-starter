@@ -54,6 +54,7 @@ export default {
             <div class="names">
                 <div class="green-name">
                     <svg width="311" height="43" viewBox="0 0 311 43">
+                        <title>marguerite.io</title>
                         <defs>
                             <linearGradient id="b" :gradientTransform="`rotate(${gradientTransformDeg})`">
                                 <stop offset="0%" stop-color="#ADFF00">

@@ -541,7 +541,7 @@ export default {
         .description {
             padding: 0 1.5rem;
             font-size: 0.7em;
-            opacity: 0.35;
+            opacity: 0.65;
             margin-bottom: 1em;
             text-align: right;
         }

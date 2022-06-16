@@ -23,6 +23,10 @@
                 type: Boolean,
                 default: false,
             },
+            alt: {
+                type: String,
+                default: ""
+            }
         },
         data() {
             return {};
@@ -42,6 +46,7 @@
         :class="{'Link--no-decoration': noDecoration}"
         :href="to"
         :target="doOpenInNewTab ? '_blank' : ''"
+        :alt="alt"
         :rel="doOpenInNewTab ? 'noreferrer noopener' : ''"
     >
         <Button v-if=isButton>

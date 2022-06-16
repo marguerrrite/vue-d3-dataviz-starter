@@ -16,8 +16,8 @@ export default {
     data() {
         return {
             isLoaded: false,
-            tech: ["Vue 3", "Vite", "D3", "CSV imports", "any-coordinate tooltips",
-                "voronoi tooltips", "responsive layouts", "color scales & interpolation"],
+            tech: ["Vue 3", "Vite", "D3", "CSV imports", "Coordinate tooltips",
+                "Voronoi tooltips", "Responsive layouts", "Color scales & interpolation", "100% Lighthouse accessible"],
             titles: {
                 shooting: "Support background checks for all gun owners",
                 heat: ""
@@ -41,6 +41,18 @@ export default {
     <MaxWidth class="Index" size="m" v-if="isLoaded">
         <div class="page-content">
             <div class="col-left">
+                <!-- <p v-for="index in 7" :key="index">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
+                    et dolore magna aliqua. Nisl purus in mollis nunc sed id semper risus. Dui sapien eget mi proin. At
+                    erat pellentesque adipiscing commodo. Vitae auctor eu augue ut lectus arcu bibendum at. Sit amet
+                    mauris commodo quis. Faucibus et molestie ac feugiat sed. Non nisi est sit amet facilisis magna
+                    etiam tempor. Fames ac turpis egestas sed. A erat nam at lectus urna. Aliquet eget sit amet tellus
+                    cras. Purus semper eget duis at tellus at. Scelerisque mauris pellentesque pulvinar pellentesque
+                    habitant morbi tristique senectus. Consectetur lorem donec massa sapien. Eget nulla facilisi etiam
+                    dignissim diam quis. Sit amet justo donec enim diam. Amet aliquam id diam maecenas ultricies mi eget
+                    mauris pharetra. Dignissim diam quis enim lobortis scelerisque fermentum dui faucibus in. Interdum
+                    velit laoreet id donec ultrices tincidunt arcu.
+                </p> -->
                 <div class="projects" v-if="chartStyle == 'styled'">
                     <div class="project">
                         <MassShootingPlot :title="titles.shooting" />
@@ -63,7 +75,6 @@ export default {
                     <div class="info">
                         <div>
                             <h3>
-
                                 <Link to="https://github.com/margueriteroth/vue-d3-dataviz-starter" do-open-in-new-tab
                                     class="github-link">
                                 vue-d3-dataviz-starter
@@ -122,6 +133,7 @@ export default {
 
         .col-left {
             flex: 1;
+            max-width: 800px;
         }
 
         .col-right {
@@ -133,18 +145,27 @@ export default {
 
             @media (max-width: 841px) {
                 max-width: 100%;
-                display: none;
             }
 
             .col-right-fixed {
                 position: fixed;
-                top: 8em;
-                padding-right: 6em;
+                top: 7.5em;
+                padding-right: 2rem;
+
+                @media(min-width: 1400px) {
+                    margin-right: calc((100% - 1400px) / 2);
+                }
+
+                margin-right: 0;
+
+                @media (max-width: 841px) {
+                    position: initial;
+                }
             }
 
             ul {
                 list-style: none;
-                padding-left: 1.5em;
+                padding-left: 1em;
             }
 
             li:before {

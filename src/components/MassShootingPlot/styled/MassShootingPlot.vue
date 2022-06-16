@@ -372,12 +372,6 @@ export default {
                 <h3>
                     Ages of US Mass School shooters since 1982
                 </h3>
-                <div class="row">
-                    <div class="description">
-                        Data period: Aug 02, 1982 &ndash; May 24, 2022
-                    </div>
-
-                </div>
             </div>
             <div class="chart-container" ref="container">
                 <template v-if="!isLoading">
@@ -528,23 +522,14 @@ export default {
                     </svg>
                 </template>
             </div>
-            <div class="chart-legend">
-                <div v-for="key in legend" :key="key" :class="`legend-key legend-key-${key.toLowerCase().includes('prior') ? 'prior-signs' : ''
-                }`">
-                    <div class="icon">
-                        <svg width="14" height="14">
-                            <circle cx="7" cy="7" r="3"></circle>
-                            <circle class="dim" cx="7" cy="7" r="7"></circle>
-                        </svg>
-                    </div>
-                    <div>
-                        {{ key }}
-                        {{
-                                key.includes("prior")
-                                    ? `(${priorSignCount} / ${data.length})`
-                                    : `(Total: ${data.length})`
-                        }}
-                    </div>
+            <div class="sources">
+                <div class="description">
+                        Data period: Aug 02, 1982 &ndash; May 24, 2022
+                    &nbsp; &nbsp; &nbsp;
+                    Source:
+                    <Link to="https://www.motherjones.com/politics/2012/12/mass-shootings-mother-jones-full-data/" do-open-in-new-tab>
+                    Mother Jones
+                    </Link>
                 </div>
             </div>
         </div>
@@ -792,6 +777,16 @@ export default {
                     opacity: 0.3;
                 }
             }
+        }
+    }
+
+    .sources {
+        .description {
+            padding: 0 1.5rem;
+            font-size: 0.7em;
+            opacity: 0.65;
+            margin-bottom: 1em;
+            text-align: right;
         }
     }
 

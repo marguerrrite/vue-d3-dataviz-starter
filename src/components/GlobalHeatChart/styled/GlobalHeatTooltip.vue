@@ -73,7 +73,7 @@ export default {
 
     .description {
         font-size: 0.8em;
-        color: var(--grey-700);
+        color: var(--grey-800);
     }
 }
 </style>
