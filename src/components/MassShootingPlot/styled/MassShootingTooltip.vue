@@ -121,8 +121,12 @@
         width: 100%;
         font-size: 0.85em;
         border-radius: 3px;
-        box-shadow: 0 5px 10px 0px rgba(black, 0.15);
-        border: 1px solid var(--grey-300);
+        box-shadow: rgba(0, 0, 0, 0.07) 0px 1px 2px,
+            rgba(0, 0, 0, 0.07) 0px 2px 4px,
+            rgba(0, 0, 0, 0.07) 0px 4px 8px,
+            rgba(0, 0, 0, 0.07) 0px 8px 16px,
+            rgba(0, 0, 0, 0.07) 0px 16px 32px,
+            rgba(0, 0, 0, 0.07) 0px 32px 64px;
         min-height: 1em;
         z-index: 200;
         height: 100%;
