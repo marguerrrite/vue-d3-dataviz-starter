@@ -26,7 +26,7 @@ cd vue-d3-dataviz-starter
 npm install
 ```
 
-4. Run the vite server (you can see what `docs:dev` corresponds to in the package.json file)
+4. Run the vite server
 ```
 npm run dev
 ```
