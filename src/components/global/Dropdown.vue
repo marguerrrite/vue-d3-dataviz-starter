@@ -126,8 +126,7 @@
 <style lang="scss">
     .dropdown {
         position: relative;
-        max-width: 8em;
-        width: fit-content;
+        width: 8em;
 
         .toggle {
             padding: 0.4em 1em;

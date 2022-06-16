@@ -16,7 +16,8 @@ export default {
     data() {
         return {
             isLoaded: false,
-            tech: ["Vue 3", "Vite", "D3", "CSV imports", "any-coordinate tooltips", "voronoi tooltips", "responsive layouts", "color scales & interpolation"],
+            tech: ["Vue 3", "Vite", "D3", "CSV imports", "any-coordinate tooltips",
+                "voronoi tooltips", "responsive layouts", "color scales & interpolation"],
             titles: {
                 shooting: "Support background checks for all gun owners",
                 heat: ""
@@ -58,44 +59,44 @@ export default {
                 </div>
             </div>
             <div class="col-right">
-                <div class="info">
-                    <div>
-                        <h3>
-                            vue-d3-dataviz-starter
-                        </h3>
-                        <p>
-                            Here is a Vue + Vite setup with dynamic and interactive D3 examples — as of now, a line
-                            chart
-                            and scatter plot. 😊
-                        </p>
-                        <p>
-                            <Link to="https://github.com/margueriteroth/vue-d3-dataviz-starter" do-open-in-new-tab
-                                class="github-link">
-                            Styled
-                            </Link> and
-                            <Link to="https://github.com/margueriteroth/vue-d3-dataviz-starter" do-open-in-new-tab
-                                class="github-link">
-                            Unstyled
-                            </Link> chart components are included in this
-                            repo.
-                        </p>
-                    </div>
-                </div>
-                <p>
-                    <Link to="https://github.com/margueriteroth/vue-d3-dataviz-starter" do-open-in-new-tab is-button
-                        class="github-link">
-                    Github repo <span class="font-inter">-></span>
-                    </Link>
-                </p>
-                <ul>
+                <div class="col-right-fixed">
+                    <div class="info">
+                        <div>
+                            <h3>
 
-                    <li v-for="item in tech" :key="item">
-                        {{ item }}
-                    </li>
-                </ul>
-                <label class="label">
-                    Last updated June 19, 2022.
-                </label>
+                                <Link to="https://github.com/margueriteroth/vue-d3-dataviz-starter" do-open-in-new-tab
+                                    class="github-link">
+                                vue-d3-dataviz-starter
+                                </Link>
+                            </h3>
+                            <p>
+                                Here is a Vue + Vite setup with dynamic and interactive D3 examples — as of now, a line
+                                chart
+                                and scatter plot. 😊
+                            </p>
+                            <p>
+                                <strong>Styled</strong> and
+                                <strong>Unstyled</strong> chart components are included in this
+                                repo.
+                            </p>
+                        </div>
+                    </div>
+                    <p>
+                        <Link to="https://github.com/margueriteroth/vue-d3-dataviz-starter" do-open-in-new-tab is-button
+                            class="github-link">
+                        Github repo <span class="font-inter">-></span>
+                        </Link>
+                    </p>
+                    <ul>
+
+                        <li v-for="item in tech" :key="item">
+                            {{ item }}
+                        </li>
+                    </ul>
+                    <label class="label">
+                        Last updated June 19, 2022.
+                    </label>
+                </div>
             </div>
         </div>
     </MaxWidth>
@@ -127,10 +128,18 @@ export default {
             // width: fit-content;
             // min-width: 200px;
             max-width: 306px;
+            position: relative;
+            width: 66em;
 
             @media (max-width: 841px) {
                 max-width: 100%;
                 display: none;
+            }
+
+            .col-right-fixed {
+                position: fixed;
+                top: 8em;
+                padding-right: 6em;
             }
 
             ul {

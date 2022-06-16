@@ -24,7 +24,7 @@ export default {
     <MaxWidth size="xl" class="nav">
         <MaxWidth size="m" class="contents">
             <div class="left-col">
-                <Link to="https://github.com/margueriteroth/vue-d3-dataviz-starter" do-open-in-new-tab no-decoration
+                <Link to="/" no-decoration
                     class="github-link">
                 <StarterTitle />
                 </Link>
@@ -34,11 +34,11 @@ export default {
 
                     <Button @click="toggleChartStyle('styled')" :class="{ inactive: chartStyle != 'styled' }"
                         class="toggle-button">
-                        <div class="content">Styled Charts</div>
+                        <div class="content">Styled <span>Charts</span></div>
                     </Button>
                     <Button @click="toggleChartStyle('unstyled')" :class="{ inactive: chartStyle != 'unstyled' }"
                         class="toggle-button">
-                        <div class="content">Unstyled Charts</div>
+                        <div class="content">Unstyled <span>Charts</span></div>
                     </Button>
                 </div>
             </div>
@@ -60,11 +60,27 @@ export default {
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 1000;
+
+    @media(max-width: 500px) {
+        box-shadow: 0 2px 50px 0px rgba(black, 0.1);
+    }
 
     .contents {
         display: flex;
         justify-content: space-between;
         align-items: center;
+
+        @media(max-width: 600px) {
+            gap: 2em;
+
+            .starter-title {
+                svg {
+                    max-width: 210px;
+                    gap: 0em;
+                }
+            }
+        }
 
         .toggle {
             overflow: hidden;
@@ -86,6 +102,12 @@ export default {
 
             @media (max-width: 700px) {
                 width: 100%;
+            }
+
+            @media(max-width: 500px) {
+                span {
+                    display: none;
+                }
             }
 
             .content {

@@ -202,7 +202,7 @@ export default {
                     "No, but barely. You have experienced a rare, distant decade with cooler-than-normal temperatures."
             } else {
                 this.tempSentiment =
-                    "Yes — it has always been abnormally hot during your lifetime."
+                    "Yes — the world has always been abnormally hot during your lifetime."
             }
         },
         onMouseMove(e) {
@@ -268,7 +268,7 @@ export default {
         <div class="card">
             <div class="card-metas">
                 <h3>
-                    Has the world always been abnormally hot?
+                    Has the Earth always been this hot?
                 </h3>
                 <div class="birth-actions">
                     <div>
@@ -364,10 +364,10 @@ export default {
                                     stroke="black" />
                             </g>
                             <g class="chart-tooltip-elements" v-if="hoveredTooltipCoords.x">
-                                <line :class="`y-rule y-rule-tooltip`" :x1="hoveredTooltipCoords.x"
-                                    :x2="hoveredTooltipCoords.x" y1="0" :y2="dimensions.boundedHeight" stroke="black" />
+                                <line :class="`y-rule y-rule-tooltip`" :x1="xScale(new Date(hoveredPeriodData.year.toString()))"
+                                    :x2="xScale(new Date(hoveredPeriodData.year.toString()))" y1="0" :y2="dimensions.boundedHeight" stroke="black" />
                                 <circle class="tooltip-ball" :fill="colorDataScale(hoveredPeriodData.mean)"
-                                    :cx="hoveredTooltipCoords.x" :cy="yScale(hoveredPeriodData.mean)" r="4"></circle>
+                                    :cx="xScale(new Date(hoveredPeriodData.year.toString()))" :cy="yScale(hoveredPeriodData.mean)" r="4"></circle>
                                 <!-- <line :class="`x-rule x-rule-tooltip`" x1="0"
                                     :x2="dimensions.boundedWidth" :y1="yScale(hoveredPeriodData.mean)" :y2="yScale(hoveredPeriodData.mean)" stroke="black" /> -->
                             </g>
@@ -527,6 +527,7 @@ export default {
         display: flex;
         justify-content: space-between;
         align-items: baseline;
+        flex-wrap: wrap;
 
         h3 {
             margin: 0;
@@ -553,6 +554,10 @@ export default {
         max-width: 550px;
         margin-bottom: 1em;
 
+        @media(max-width: 600px) {
+            color: var(--grey-700);
+        }
+
         strong {
             font-weight: 600;
         }
@@ -566,11 +571,19 @@ export default {
     .birth-actions {
         display: flex;
         align-items: center;
-        width: fit-content;
+        white-space: nowrap;
         gap: 0.5em;
         justify-content: center;
         font-size: 0.8em;
         position: relative;
+
+        @media(max-width: 600px) {
+            width: 100%;
+        }
+
+        @media(max-width: 500px) {
+            font-size: 1em;
+        }
 
         .dropdown {
             .options .button {
