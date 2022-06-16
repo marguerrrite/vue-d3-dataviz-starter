@@ -55,6 +55,7 @@ export default {
                 </p> -->
                 <div class="projects" v-if="chartStyle == 'styled'">
                     <div class="project">
+                        <div>Bees</div>
                         <MassShootingPlot :title="titles.shooting" />
                     </div>
                     <div class="project">
@@ -63,7 +64,7 @@ export default {
                 </div>
                 <div class="projects" v-if="chartStyle == 'unstyled'">
                     <div class="project">
-                        <!-- <MassShootingPlotUnstyled /> -->
+                        <MassShootingPlotUnstyled />
                     </div>
                     <div class="project">
                         <!-- <GlobalHeatChartUnstyled /> -->
