@@ -43,7 +43,6 @@ const head = createHead();
 
 app.use(VuePapaParse)
 
-debugger
 app.use(store);
 app.use(router);
 app.use(head);
