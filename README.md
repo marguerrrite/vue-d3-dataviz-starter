@@ -54,37 +54,20 @@ npm run dev
 
 ## Charts and datasets
 
-#### Bar chart
-* 2014 Planned Parenthood services distribution
-	* https://data.world/kevinnayar/planned-parenthood-services
-* Kinds of contracts city police
-	* https://atlasofsurveillance.org/library
-
-
 
 #### Line chart
 - Average temperature anomaly mean time series
 	- https://data.world/data-society/global-climate-change-data/workspace/file?filename=GlobalLandTemperatures%2FGlobalLandTemperaturesByState.csv
+	- https://www.ncdc.noaa.gov/cag/global/time-series
 
 
 #### Scatter plot
 - Mass shootings
 	-  https://www.motherjones.com/politics/2012/12/mass-shootings-mother-jones-full-data/
-    -  https://data.world/marguerite/mother-jones-mass-shooting/workspace/file?filename=mass-shooting-mother-jones.csv
+	-  https://data.world/marguerite/mother-jones-mass-shooting/workspace/file?filename=mass-shooting-mother-jones.csv
 
 
 
-
-#### Map
-
-
----
-## Random context — the structure of a "modern app"
-
-![[Pasted image 20220530153758.png]]
-
-
-
----
-## How visualizations translate into the DOM
-
+On deck:
+- Map
+- Bar chart (commented out bars in the Global Heat styled chart)
