@@ -2,7 +2,6 @@
     import utils from "@/scripts/utils.js";
 
     import {scaleLinear, scaleUtc, range, line, scan} from "d3";
-    import VuePapaParse from "vue-papa-parse";
 
     export default {
         name: "GlobalHeatChartUnstyled",
@@ -21,7 +20,7 @@
                 isLoading: true,
                 resizeObserver: null,
 
-                localDataUrl: "src/data/global-temperatures-datahub.csv",
+                localDataUrl: "./data/global-temperatures-datahub.csv",
 
                 data: [], // processed data
 

@@ -3,7 +3,6 @@
 
     import {scaleLinear, scaleUtc, range, line, scan, max, min, timeFormat} from "d3";
     import {Delaunay} from "d3-delaunay";
-    import VuePapaParse from "vue-papa-parse";
 
     export default {
         name: "MassShootingPlotUnstyled",
@@ -22,7 +21,7 @@
                 isLoading: true,
                 resizeObserver: null,
 
-                localDataUrl: "src/data/mass-shooting-mother-jones.csv",
+                localDataUrl: "./data/mass-shooting-mother-jones.csv",
 
                 data: [], // processed data
 
