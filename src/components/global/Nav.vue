@@ -70,12 +70,27 @@ export default {
         align-items: center;
 
         @media(max-width: 600px) {
-            gap: 2em;
+            gap: 1em;
+            align-items: center;
 
             .starter-title {
                 svg {
-                    max-width: 210px;
+                    max-width: 200px;
                     gap: 0em;
+                    width: 100%;
+                }
+            }
+        }
+
+        @media(max-width: 420px) {
+            gap: 1em;
+            align-items: center;
+
+            .starter-title {
+                svg {
+                    max-width: 160px;
+                    gap: 0em;
+                    width: 100%;
                 }
             }
         }
@@ -100,6 +115,7 @@ export default {
 
             @media (max-width: 700px) {
                 width: 100%;
+                padding: 1em 0.75em;
             }
 
             @media(max-width: 500px) {

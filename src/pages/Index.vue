@@ -49,14 +49,14 @@ export default {
                         <GlobalHeatChart />
                     </div>
                 </div>
-                <div class="projects" v-if="chartStyle == 'unstyled'">
+                <!-- <div class="projects" v-if="chartStyle == 'unstyled'">
                     <div class="project">
                         <MassShootingPlotUnstyled />
                     </div>
                     <div class="project">
                         <GlobalHeatChartUnstyled />
                     </div>
-                </div>
+                </div> -->
             </div>
             <div class="col-right">
                 <div class="col-right-fixed">
@@ -107,6 +107,11 @@ export default {
 .Index {
     height: 100%;
     padding-top: 8em;
+
+    @media (max-width: 600px) {
+        padding-top: 6em;
+    }
+
 
     .page-content {
         display: flex;

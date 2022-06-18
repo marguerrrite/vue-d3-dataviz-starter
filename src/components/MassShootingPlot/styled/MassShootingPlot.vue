@@ -681,6 +681,7 @@ export default {
         background: white;
         margin-top: 0.5em;
         border-radius: 3px;
+        overflow: hidden;
     }
 
     .chart {

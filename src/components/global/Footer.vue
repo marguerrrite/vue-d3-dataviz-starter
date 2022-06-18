@@ -73,6 +73,7 @@ export default {
     justify-content: space-between;
     align-items: flex-start;
     width: 100%;
+    flex-wrap: wrap;
 
     &__container {
         position: relative;
