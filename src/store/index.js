@@ -3,9 +3,8 @@ import {createStore} from "vuex";
 const store = createStore({
     state() {
         return {
-            chartStyle: typeof window !== 'undefined' && localStorage.getItem("d3cs____") ? JSON.parse(localStorage.getItem("d3cs____"))["style"] : "unstyled",
+            chartStyle: typeof window !== 'undefined' && localStorage.getItem("d3cs____") ? JSON.parse(localStorage.getItem("d3cs____"))["style"] : "styled",
             localStorageKey: "d3cs____",
-            mode: "dev",
         };
     },
 
