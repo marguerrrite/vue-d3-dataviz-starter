@@ -77,7 +77,7 @@
 
 <template>
     <div class="dropdown">
-        <div class="toggle" @click="toggleOpenList" :class="{active: isListOpen, 'no-border': noBorder}">
+        <div class="toggle" @click="toggleOpenList" :class="{active: isListOpen, 'no-border': plain}">
             <div class="value">
                 {{ value }}
             </div>
