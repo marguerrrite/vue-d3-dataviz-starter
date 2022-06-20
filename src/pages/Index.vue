@@ -93,7 +93,7 @@ export default {
                         </li>
                     </ul>
                     <label class="label">
-                        Last updated June 19, 2022.
+                        Last updated June 20, 2022.
                     </label>
                 </div>
             </div>
@@ -158,7 +158,7 @@ export default {
 
             ul {
                 list-style: none;
-                padding-left: 1.25em;
+                padding-left: 0.5em;
             }
 
             li:before {
