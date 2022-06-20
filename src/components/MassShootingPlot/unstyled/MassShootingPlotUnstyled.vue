@@ -218,14 +218,14 @@
                 utils.debounce(this.setTooltip(e), 9000);
             },
             onMouseLeave(e) {
-                // this.hoveredTooltipCoords = {
-                //     x: 0,
-                //     y: 0,
-                //     attach: "right",
-                //     width: this.tooltipWidth,
-                // };
-                // this.hoveredPeriodData = {};
-                // this.hoveredPeriodIndex = -1;
+                this.hoveredTooltipCoords = {
+                    x: 0,
+                    y: 0,
+                    attach: "right",
+                    width: this.tooltipWidth,
+                };
+                this.hoveredPeriodData = {};
+                this.hoveredPeriodIndex = -1;
             },
         },
         watch: {

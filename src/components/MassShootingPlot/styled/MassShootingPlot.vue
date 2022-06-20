@@ -1,6 +1,6 @@
 <script>
 import utils from "@/scripts/utils.js";
-import { scaleLinear, scaleUtc, range, max, timeFormat, interpolateRdPu } from "d3";
+import { scaleLinear, scaleUtc, range, max, timeFormat, interpolateRdPu, interpolateCool } from "d3";
 import { Delaunay } from "d3-delaunay";
 
 export default {
@@ -64,19 +64,21 @@ export default {
 
             isTooltipLocked: false,
 
-            legend: ["Assailant", "Assailant with prior signs mental health issues"],
+            legend: ["Total assailants", "Showed signs of mental health issues"],
 
             voronoiData: {},
 
+            activeCalloutAge: 18,
+            activeCalloutAgeLabel: "",
             calloutAges: [
-                { age: 25, description: "Rent a car", emoji: "🚙" },
-                { age: 21, description: "Drink alcohol", emoji: "🍺" },
-                { age: 18, description: "Purchase cigarettes", emoji: "🚬" },
+                { age: 25, description: "Rented a car", emoji: "🚙" },
+                { age: 21, description: "Drank alcohol", emoji: "🍺" },
+                { age: 18, description: "Smoked cigarettes", emoji: "🚬" },
             ],
 
             calloutTragedies: [
-                { case: "Columbine High School massacre" },
-                { case: "Robb Elementary School massacre" },
+                { case: "Columbine High School massacre", date: "", age: "" }, // shift
+                { case: "Uvalde Robb Elementary School massacre", date: "", age: "" }, // recent
             ],
         };
     },
@@ -103,7 +105,15 @@ export default {
             return range(0, 55, 15);
         },
         colorRange() {
-            return [interpolateRdPu(0.4), interpolateRdPu(0.85)].reverse();
+            return [interpolateCool(0.2), interpolateCool(0.8)];
+        },
+        medianAge() {
+            let ages = this.data.map(row => parseInt(row.age_of_shooter));
+            ages = ages.sort();
+
+            let midIndex = Math.floor(ages.length / 2);
+
+            return ages.length % 2 !== 0 ? ages[midIndex] : (ages[midIndex - 1] + ages[midIndex]) / 2;
         },
         youngAdultCount() {
             let count = this.data.filter(row => {
@@ -149,6 +159,17 @@ export default {
             let count = this.data.filter(row => this.didShowPriorSigns(row));
             return count.length;
         },
+        dropdownSrc() {
+            let values = [...this.calloutAges];
+            let list = values.map(d => {
+                return {
+                    label: d.description,
+                    value: d.age
+                }
+            })
+
+            return list;
+        }
     },
     methods: {
         async loadData() {
@@ -160,17 +181,27 @@ export default {
                 },
                 complete: data => {
                     this.processData(data.data);
-                    console.log(data)
-                    console.log('complete')
                 },
             });
         },
         processData(data) {
             if (!data) return;
             let cleanData = [];
+
             data.forEach(row => {
                 let newDate = new Date(row.date);
                 row.date = newDate;
+                row.callout = false;
+
+                this.calloutTragedies.forEach((tragedy, i) => {
+                    let caseKeyword = tragedy.case.split(" ")[0].toLowerCase();
+                    if (row.case.toLowerCase().includes(caseKeyword) ||
+                        row.city.toLowerCase().includes(caseKeyword)) {
+                        row.callout = true;
+                        this.calloutTragedies[i] = row; // replace
+                    }
+                })
+
                 cleanData.push(row);
 
                 let cleanDataIndex = cleanData.length - 1;
@@ -277,13 +308,13 @@ export default {
 
             let halfTooltipHeight = this.tooltipHeight / 2;
 
-            // if (y + halfTooltipHeight > this.dimensions.boundedHeight) {
-            //     // restrict bottom bounds
-            //     y = y - (y + halfTooltipHeight - this.dimensions.boundedHeight);
-            // } else if (y - halfTooltipHeight < 0) {
-            //     // restrict top bounds
-            //     y = halfTooltipHeight;
-            // }
+            if (y + halfTooltipHeight > this.dimensions.boundedHeight) {
+                // restrict bottom bounds
+                y = y - (y + halfTooltipHeight - this.dimensions.boundedHeight);
+            } else if (y - halfTooltipHeight < 0) {
+                // restrict top bounds
+                y = halfTooltipHeight;
+            }
 
             // // small widths
             // if (this.tooltipWidth == 260 && this.tooltipWidth > x) {
@@ -339,6 +370,19 @@ export default {
             }
             return false;
         },
+        changeCalloutAge(newAge) {
+            this.activeCalloutAge = newAge;
+            this.activeCalloutAgeLabel = this.dropdownSrc.find(d => d.value == newAge).label;
+        },
+        getAgeCount(age) {
+            // for age & under
+            let count = this.data.filter(row => {
+                if (row.age_of_shooter < age) {
+                    return true;
+                }
+            });
+            return count.length;
+        }
     },
     watch: {
         data: {
@@ -350,6 +394,11 @@ export default {
         },
     },
     async mounted() {
+        if (!this.activeCalloutAgeLabel) {
+            // init the default label
+            this.activeCalloutAgeLabel = this.dropdownSrc.find(d => d.value == this.activeCalloutAge).label;
+        }
+
         await this.loadData();
         this.resizeObserver = new ResizeObserver(
             utils.animationFrame(this.setDimensions)
@@ -375,24 +424,50 @@ export default {
         <div class="card">
             <div class="card-metas">
                 <h3>
-                    Ages of US Mass School shooters since 1982
+                    US Mass School shooters
                 </h3>
                 <div class="chart-legend">
-                    <div v-for="key, index in legend" :key="key" :class="`legend-key legend-key-${key.toLowerCase().includes('prior') ? 'prior-signs' : ''
-                    }`">
-                        <div class="icon">
-                            <svg width="14" height="14">
-                                <circle :fill="colorRange[index]" cx="7" cy="7" r="3"></circle>
-                                <circle :fill="colorRange[index]" class="dim" cx="7" cy="7" r="7"></circle>
-                            </svg>
+                    <div class="legend-key">
+                        <div class="count">
+                            {{ medianAge ? `~${medianAge}` : '--' }} <span>y/o</span>
                         </div>
-                        <div>
-                            {{ key }}
-                            {{
-                                    key.includes("prior")
-                                        ? `(${priorSignCount} / ${data.length})`
-                                        : `(Total: ${data.length})`
+                        <div class="label-container">
+                            <div class="label">
+                                Median age
+                            </div>
+                        </div>
+                    </div>
+                    <div v-for="key, index in legend" :key="key" :class="`legend-key legend-key-${key.toLowerCase().includes('mental') ? 'prior-signs' : ''
+                    }`">
+
+                        <div class="count">
+                            {{ key.includes("mental")
+                                    ? `${priorSignCount}`
+                                    : `${data.length}`
                             }}
+                        </div>
+                        <div class="label-container">
+                            <!-- <div class="icon">
+                                <svg width="14" height="14">
+                                    <circle :fill="colorRange[0]" cx="7" cy="7" r="3"></circle>
+                                    <circle :fill="colorRange[index]" class="dim" cx="7" cy="7" r="7"></circle>
+                                </svg>
+                            </div> -->
+                            <div class="label">
+                                {{ key }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="legend-key">
+                        <div class="count">
+                            {{ getAgeCount(activeCalloutAge) }}
+                        </div>
+                        <div class="label-container">
+                            <div class="label">
+                                <span>Couldn't have legally</span>
+                                <Dropdown class="age-threshold-dropdown" :items="dropdownSrc"
+                                    :value="activeCalloutAgeLabel" @selected="changeCalloutAge" />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -425,30 +500,10 @@ export default {
                         <g class="x-rules" :style="{
                             transform: `translate(${dimensions.marginLeft}px, ${dimensions.marginTop}px)`,
                         }">
-                            <!-- <line
-                            class="y-rule"
-                            v-for="year in yearTicks"
-                            :key="year"
-                            :x1="xScale(new Date(year.toString()))"
-                            :x2="xScale(new Date(year.toString()))"
-                            :y2="dimensions.boundedHeight"
-                            stroke="black"
-                        /> -->
                             <line class="y-rule" v-for="year in yearLabels" :key="year"
                                 :x1="xScale(new Date(year.toString()))" :x2="xScale(new Date(year.toString()))"
                                 :y2="dimensions.boundedHeight" stroke="black" />
                         </g>
-                        <!-- <g
-                        class="age-highlight"
-                        :style="{
-                            transform: `translate(${dimensions.marginLeft}px, ${
-                                yScale('25') + dimensions.marginTop
-                            }px)`,
-                        }"
-                    >
-                        <text>Age to rent a car: 25</text>
-                        <line :x2="dimensions.boundedWidth" stroke="black"></line>
-                    </g> -->
                         <g class="y-axis" :style="{
                             transform: `translate(${dimensions.marginLeft - 10}px, ${dimensions.marginTop
                                 }px)`,
@@ -484,31 +539,45 @@ export default {
                                 Year
                             </text>
                         </g>
-                        <!-- <g
-                        class="highlight-30"
-                        :style="{
-                            transform: `translate(${dimensions.marginLeft}px, ${
-                                dimensions.marginTop + yScale('30')
-                            }px)`,
-                        }"
-                    >
-                        <rect
-                            :width="dimensions.boundedWidth"
-                            :height="yScale('11') - yScale('30')"
-                            :class="{highlight: hoveredPeriodData.age_of_shooter <= 30}"
-                        ></rect>
-                    </g> -->
-                        <g class="callout-data-container" :style="{
-                            transform: `translate(${dimensions.marginLeft - 20}px, ${dimensions.marginTop
-                                }px)`,
+                        <g class="callout-ages" :style="{
+                            transform: `translate(${dimensions.marginLeft}px, ${dimensions.marginTop}px)`,
                         }">
-                            <line v-for="row in calloutAges" :key="row" class="callout-rule"
-                                :class="`${row.age == 25 ? 'car' : 'drink'}`" :x1="20"
-                                :x2="dimensions.boundedWidth + 20" :y1="yScale(row.age.toString())"
-                                :y2="yScale(row.age.toString())" stroke="black"></line>
-                            <text v-for="row in calloutAges" :key="row" class="callout-label"
-                                :y="yScale(row.age.toString()) + 3">
-                                {{ row.age }}
+                            <rect :y="yScale(activeCalloutAge)" :width="dimensions.boundedWidth"
+                                :height="dimensions.boundedHeight - yScale(activeCalloutAge)" :class="{}">
+                            </rect>
+                            <text class="callout-label" :x="5" :y="34" :style="{
+                                transform: `translate(0px, ${yScale(activeCalloutAge) - 16}px)`
+                            }">
+                                Age {{ activeCalloutAge }}
+                            </text>
+                            <line x1="0" :x2="dimensions.boundedWidth" :style="{
+                                transform: `translate(0px, ${yScale(activeCalloutAge)}px)`
+                            }"></line>
+                            <!-- Using a transform here for setting the line Y allows us to animate the transition via css -->
+                        </g>
+                        <g v-if="!isLoading" class="callout-tragedy-container" :style="{
+                            transform: `translate(${dimensions.marginLeft}px, ${dimensions.marginTop}px)`,
+                            opacity: hoveredTooltipCoords.x ? 0.25 : 1
+                        }">
+                            <!-- Columbine -->
+                            <line :x1="xScale(xAccessor(calloutTragedies[0]))"
+                                :y1="yScale(yAccessor(calloutTragedies[0])) - (dimensions.boundedHeight / 3.7) + 6"
+                                :x2="xScale(xAccessor(calloutTragedies[0]))"
+                                :y2="yScale(yAccessor(calloutTragedies[0]))" class="callout-rule" stroke="black"></line>
+                            <text :x="xScale(xAccessor(calloutTragedies[0]))"
+                                :y="yScale(yAccessor(calloutTragedies[0])) - (dimensions.boundedHeight / 3.7)"
+                                class="callout-label recent">
+                                Columbine
+                            </text>
+                            <!-- Uvalde -->
+                            <line :x1="xScale(xAccessor(calloutTragedies[1])) - (dimensions.boundedWidth / 50)"
+                                :y1="yScale(yAccessor(calloutTragedies[1])) - (dimensions.boundedHeight / 4) + 6"
+                                :x2="xScale(xAccessor(calloutTragedies[1]))"
+                                :y2="yScale(yAccessor(calloutTragedies[1]))" class="callout-rule" stroke="black"></line>
+                            <text :x="xScale(xAccessor(calloutTragedies[1])) - (dimensions.boundedWidth / 50)"
+                                :y="yScale(yAccessor(calloutTragedies[1])) - (dimensions.boundedHeight / 4)"
+                                class="callout-label recent">
+                                Uvalde
                             </text>
                         </g>
                         <g class="tooltip-elements" v-if="hoveredTooltipCoords.x" :style="{
@@ -532,7 +601,7 @@ export default {
                                     transform: `translate(${shooter.x}px, ${shooter.y}px)`,
                                 }">
                                 <g v-if="didShowPriorSigns(data[index])" class="prior-signs">
-                                    <circle :fill="colorRange[1]" r="4"></circle>
+                                    <circle :fill="colorRange[0]" r="4"></circle>
                                     <circle :fill="colorRange[1]" class="dim" r="9"
                                         :class="{ legal: didObtainLegally(data[index]) }">
                                     </circle>
@@ -659,6 +728,7 @@ export default {
         border: 1px solid var(--grey-200);
         border-radius: 4px;
         padding: 0.5em;
+        padding-top: 0;
         width: 100%;
         height: 100%;
     }
@@ -746,24 +816,34 @@ export default {
             font-size: 0.8em;
         }
 
-        .highlight-30 {
+        .callout-ages {
             rect {
-                fill: var(--red-orange-500);
-                opacity: 0.11;
-
-                // &.highlight {
-                //     opacity: 0.25;
-                // }
+                fill: var(--grey-700);
+                opacity: 0.07;
+                transition: all 100ms linear;
             }
-        }
 
-        .callout-data-container {
-            font-size: 0.65em;
+            line {
+                opacity: 0.5;
+                stroke: black;
+                stroke-dasharray: 4;
+                transition: all 100ms linear;
+            }
 
             .callout-label {
-                fill: var(--red-orange-900);
+                font-size: 0.7em;
+                transition: all 100ms linear;
+            }
+
+        }
+
+        .callout-tragedy-container {
+            font-size: 0.85em;
+
+            .callout-label {
                 opacity: 0.9;
-                text-anchor: start;
+                text-anchor: middle;
+                font-weight: 600;
                 letter-spacing: -0.06em;
                 font-variant-numeric: tabular-nums;
             }
@@ -771,7 +851,6 @@ export default {
             .callout-rule {
                 stroke-dasharray: 2;
                 opacity: 0.4;
-                fill: var(--red-orange-900);
             }
         }
 
@@ -781,7 +860,7 @@ export default {
 
         .shooter-container {
             .dim {
-                opacity: 0;
+                opacity: 0.5;
             }
 
             .prior-signs {
@@ -793,10 +872,11 @@ export default {
             &.hovered {
                 circle {
                     opacity: 1;
+                    fill: black;
                 }
 
                 .dim {
-                    opacity: 0.3;
+                    opacity: 0.5;
                 }
             }
         }
@@ -814,18 +894,69 @@ export default {
 
     .chart-legend {
         display: flex;
-        align-items: center;
-        gap: 2em;
-        font-size: 0.8em;
+        //align-items: center;
+        gap: 1em;
         padding-top: 0.5em;
+        margin-top: 1em;
+        justify-content: center;
+
+        @media(max-width: 800px) {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .count {
+            font-size: 1.2em;
+            font-weight: 600;
+            width: 100%;
+            //padding-left: 1.1rem;
+            text-align: center;
+
+            span {
+                font-size: 0.8rem;
+                font-weight: 500;
+                opacity: 0.5;
+            }
+        }
+
+        .label-container {
+            display: flex;
+            align-items: baseline;
+            gap: 0.25em;
+            //max-width: 134px;
+            width: fit-content;
+            text-align: right;
+            text-align: center;
+        }
+
+        .age-threshold-dropdown {
+            display: inline-flex;
+             min-width: fit-content;
+
+            .value {
+                text-transform: lowercase;
+                white-space: nowrap;
+            }
+
+            .options .button {
+                font-size: 1em;
+                text-transform: lowercase;
+            }
+        }
+
+        .label {
+            font-size: 0.8em;
+            line-height: 1.2;
+        }
 
         .legend-key {
             display: flex;
-            gap: 0.25em;
-            align-items: end;
+            flex: 1;
+            align-items: center;
+            flex-direction: column;
 
             .dim {
-                opacity: 0.2;
+                opacity: 0.5;
             }
 
             .icon {

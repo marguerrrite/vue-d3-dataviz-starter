@@ -1,5 +1,5 @@
 <script>
-    import {interpolateRdPu, timeFormat} from "d3";
+    import {interpolateCool, timeFormat} from "d3";
     export default {
         name: "MassShootingTooltip",
         props: {
@@ -26,7 +26,7 @@
         },
         data() {
             return {
-                priorColor: interpolateRdPu(0.4)
+                priorColor: interpolateCool(0.8)
             };
         },
         computed: {
@@ -84,7 +84,7 @@
                             :style="{
                                 background: priorColor
                         }">
-                            Prior signs
+                            Mental health issues
                         </div>
                     </div>
                 </div>
@@ -188,13 +188,8 @@
             padding: 0.125em 0.2em;
             font-weight: 600;
             white-space: nowrap;
-            color: var(--red-orange-900);
             border-radius: 2px;
-
-            &.prior-signs {
-                background: var(--red-orange-200);
-                color: white;
-            }
+            color: black;
         }
 
         .summary {
