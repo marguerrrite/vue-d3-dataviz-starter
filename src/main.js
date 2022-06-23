@@ -1,7 +1,7 @@
 import {createApp} from "vue";
 import {createRouter, createWebHistory} from "vue-router";
 import {createHead} from "@vueuse/head";
-import VuePapaParse from 'vue-papa-parse'
+import VuePapaParse from "vue-papa-parse";
 import App from "./App.vue";
 import routes from "./pages/urls.js";
 import store from "./store/";
@@ -27,7 +27,7 @@ for (const path in layouts) {
     app.component(componentName, componentConfig.default || componentConfig);
 }
 
-let mode = import.meta.env.VITE_STAGE
+let mode = import.meta.env.VITE_STAGE;
 
 let allRoutes = [...routes];
 
@@ -41,7 +41,7 @@ let router = createRouter({
 
 const head = createHead();
 
-app.use(VuePapaParse)
+app.use(VuePapaParse);
 
 app.use(store);
 app.use(router);
