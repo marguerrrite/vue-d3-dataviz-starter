@@ -437,11 +437,11 @@ export default {
                             </div>
                         </div>
                     </div>
-                    <div v-for="key, index in legend" :key="key" :class="`legend-key legend-key-${key.toLowerCase().includes('mental') ? 'prior-signs' : ''
+                    <div v-for="key, index in legend" :key="key" :class="`legend-key legend-key-${key.toLowerCase().includes('warning') ? 'prior-signs' : ''
                     }`">
 
                         <div class="count">
-                            {{ key.includes("mental")
+                            {{ key.includes("warning")
                                     ? `${priorSignCount}`
                                     : `${data.length}`
                             }}
