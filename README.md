@@ -4,7 +4,7 @@ Project starter to get up and moving quickly, with examples. For Sabine!
 
 https://vue-d3-dataviz-starter.netlify.app/
 
-![image](https://user-images.githubusercontent.com/5288685/185763277-2c5fa430-deea-488f-84a2-8eee3a0d5e95.png)
+![image](https://user-images.githubusercontent.com/5288685/185763550-e0d2dc8f-28b0-469d-a903-cbeec27dac02.png)
 
 Alternatively, you can ignore all the d3 and use this as a Vue + Vite starter.
 
