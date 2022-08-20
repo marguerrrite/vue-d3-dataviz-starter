@@ -1,5 +1,7 @@
 import {defineConfig} from "vite";
 import ViteComponents from "vite-plugin-components";
+import Pages from "vite-plugin-pages";
+import generateSitemap from "vite-plugin-pages-sitemap";
 import vue from "@vitejs/plugin-vue";
 
 export default defineConfig({
@@ -28,10 +30,17 @@ export default defineConfig({
         }),
         ViteComponents({
             // allow auto load markdown components under `./src/components/`
-            extensions: ["vue", "md"],
-
+            extensions: ["vue", "md"],           
             // allow auto import and register components used in markdown
             customLoaderMatcher: id => id.endsWith(".md"),
+        }),
+        Pages({
+            extensions: ["vue", "md"],
+            dirs: [{dir: "src/pages", baseRoute: ""}],
+            extendRoute(route, parent) {
+                console.log(route)
+            },
+            
         }),
     ],
     ssgOptions: {

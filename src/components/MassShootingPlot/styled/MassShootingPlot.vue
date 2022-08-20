@@ -64,7 +64,7 @@ export default {
 
             isTooltipLocked: false,
 
-            legend: ["Total assailants", "Showed signs of mental health issues"],
+            legend: ["Total assailants", "Showed warning signs"],
 
             voronoiData: {},
 
