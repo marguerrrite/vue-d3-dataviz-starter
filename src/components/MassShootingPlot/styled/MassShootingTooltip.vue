@@ -84,7 +84,7 @@
                             :style="{
                                 background: priorColor
                         }">
-                            Mental health issues
+                            Warning signs
                         </div>
                     </div>
                 </div>
