@@ -79,14 +79,20 @@
                         {{ data.shooter_name }}
                         <span class="age">({{ data.age_of_shooter }})</span>
                     </div>
-                    <div class="tags">
+                    <div class="fatalities">
+                        Fatalities: {{ data.fatalities }}
+                    </div>
+                    <div class="fatalities">
+                        Total victims: {{ data.total_victims }}
+                    </div>
+                    <!-- <div class="tags">
                         <div class="tag prior-signs" v-if="didShowPriorSigns"
                             :style="{
                                 background: priorColor
                         }">
                             Warning signs
                         </div>
-                    </div>
+                    </div> -->
                 </div>
                 <h5 class="date">{{ data.city }}</h5>
                 <h5 class="date">

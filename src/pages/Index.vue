@@ -28,7 +28,7 @@
                     "100% Lighthouse accessible",
                 ],
                 titles: {
-                    shooting: "Support background checks for all gun owners",
+                    shooting: "",
                     heat: "",
                 },
             };
@@ -70,7 +70,7 @@
             <div class="col-right">
                 <div class="col-right-fixed">
                     <div class="info">
-                        <div>
+                        <div class="col">
                             <h3>
                                 <Link
                                     to="https://github.com/margueriteroth/vue-d3-dataviz-starter"
@@ -107,7 +107,7 @@
                             {{ item }}
                         </li>
                     </ul>
-                    <label class="label"> Last updated June 20, 2022. </label>
+                    <label class="label"> Last updated October 14, 2022. </label>
                 </div>
             </div>
         </div>
