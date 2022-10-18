@@ -171,11 +171,12 @@
         left: 0;
         background: var(--background-color);
         color: red;
-        padding: 0.35em 0.75em;
+        padding: 0 0.75em 0.35em 0.75em;
+        padding-top: 0;
         border-radius: 4px;
         box-shadow: 0 2px 3px 0px #3d383830;
         min-width: 18em;
-        font-size: 1rem;
+        font-size: 0.8rem;
         font-weight: 500;
         width: 100%;
     }

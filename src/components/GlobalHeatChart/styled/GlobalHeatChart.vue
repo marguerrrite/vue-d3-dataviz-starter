@@ -306,7 +306,7 @@
 <template>
     <div class="global-heat-chart">
         <div class="metas">
-            <h2>It's always the hottest decade (as of late 🔥😬)</h2>
+            <h2>We will always be in the hottest decade</h2>
         </div>
 
         <div v-if="isLoading">Loading data...</div>

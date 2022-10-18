@@ -6,9 +6,7 @@
         range,
         max,
         timeFormat,
-        interpolateRdPu,
         interpolateCool,
-        color,
     } from "d3";
     import {Delaunay} from "d3-delaunay";
     import Tooltip from "../../global/Tooltip.vue";
@@ -36,7 +34,6 @@
                 localDataUrl: "./data/mass-shooting-mother-jones.csv",
                 data: [],
                 youngAdultRange: {
-                    // good ol "rent a car" age
                     start: 0,
                     end: 25,
                 },
@@ -58,8 +55,8 @@
                 xScale: scaleUtc(),
                 yScale: scaleLinear(),
                 dataPath: "",
-                tooltipWidth: 260,
-                tooltipHeight: 100,
+                tooltipWidth: 350,
+                tooltipHeight: 240,
                 previousAttach: "right",
                 hoveredTooltipCoords: {x: 0, y: 0},
                 hoveredPeriodData: {},
@@ -87,11 +84,9 @@
         },
         computed: {
             maxYValue() {
-                //return max(this.data, this.yAccessor);
                 return 55;
             },
             minYValue() {
-                //return min(this.data, this.yAccessor);
                 return 0;
             },
             yearTicks() {
@@ -485,7 +480,12 @@
                     </div>
                     <div class="col action-col">
                         <div class="count">
-                            {{ getAgeCount(activeCalloutAge) }}
+                            <div
+                                class="filtered-count"
+                                :style="{color: colorRange[0]}"
+                            >
+                                {{ getAgeCount(activeCalloutAge) }}&nbsp;
+                            </div>
                             <span>of {{ totalShooters }} assailants</span>
                         </div>
                         <div class="label-container">
@@ -650,10 +650,7 @@
                             <rect
                                 :y="0"
                                 :width="dimensions.boundedWidth"
-                                :height="
-                                    
-                                    yScale(activeCalloutAge)
-                                "
+                                :height="yScale(activeCalloutAge)"
                                 :class="{}"
                             ></rect>
                             <text
@@ -796,13 +793,13 @@
                                 <g>
                                     <circle
                                         :fill="
-                                            activeCalloutAge >
+                                            activeCalloutAge >=
                                             parseInt(data[index].age_of_shooter)
                                                 ? colorRange[0]
                                                 : '#5c647a'
                                         "
                                         :r="
-                                            activeCalloutAge >
+                                            activeCalloutAge >=
                                             parseInt(data[index].age_of_shooter)
                                                 ? 4
                                                 : 4
@@ -810,11 +807,11 @@
                                     ></circle>
                                     <circle
                                         v-if="
-                                            data[index].fatalities >
+                                            data[index].fatalities >=
                                             fatalityThreshold
                                         "
                                         :fill="
-                                            activeCalloutAge >
+                                            activeCalloutAge >=
                                             parseInt(data[index].age_of_shooter)
                                                 ? colorRange[0]
                                                 : '#5c647a'
@@ -825,7 +822,7 @@
                                     <circle
                                         v-if="didShowPriorSigns(data[index])"
                                         :stroke="
-                                            activeCalloutAge >
+                                            activeCalloutAge >=
                                             parseInt(data[index].age_of_shooter)
                                                 ? 'cornflowerblue'
                                                 : '#5c647a'
@@ -841,7 +838,16 @@
                     </svg>
                 </template>
             </div>
-            <div class="legend">More than 10 fatalities.</div>
+            <div class="legend">
+                <div class="col">
+                    <div class="icon icon-fatalities"></div>
+                    <div class="label">10+ fatalities</div>
+                </div>
+                <div class="col">
+                    <div class="icon icon-warning"></div>
+                    <div class="label">Displayed violent warning signs</div>
+                </div>
+            </div>
             <div class="sources">
                 <div class="description">
                     Data period: Aug 02, 1982 &ndash; July 17, 2022 &nbsp;
@@ -941,7 +947,7 @@
 
             .date-label {
                 transform: translate(-50%, 107%);
-                background: var(--grey-600);
+                background: #4c6edb;
                 width: fit-content;
                 color: white;
                 font-size: 0.7em;
@@ -1064,7 +1070,7 @@
 
             .callout-ages {
                 rect {
-                    fill: var(--grey-700);
+                    fill: var(--grey-600);
                     opacity: 0.07;
                     transition: all 100ms linear;
                 }
@@ -1119,7 +1125,8 @@
                 &.hovered {
                     circle {
                         opacity: 1;
-                        fill: black;
+                        fill: var(--neon-pink-500);
+                        stroke: var(--neon-pink-500);
                     }
 
                     .dim {
@@ -1147,12 +1154,13 @@
             margin-top: 1em;
             justify-content: space-around;
 
-            @media (max-width: 800px) {
+            @media (max-width: 600px) {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
             }
 
             .col {
+                width: 100%;
                 // display: flex;
                 // justify-content: space-between;
                 // width: 100%;
@@ -1165,6 +1173,7 @@
                 align-items: center;
                 display: flex;
                 flex-direction: column;
+                margin: 0 auto;
                 //border: 1px solid;
 
                 .label {
@@ -1181,6 +1190,11 @@
                 //padding-left: 1.1rem;
                 text-align: center;
 
+                .filtered-count {
+                    display: inline-block;
+                    font-weight: 700;
+                }
+
                 span {
                     font-size: 0.8rem;
                     font-weight: 500;
@@ -1191,11 +1205,18 @@
             .label-container {
                 display: flex;
                 align-items: baseline;
+                width: 100%;
                 gap: 0.25em;
                 //max-width: 134px;
-                width: fit-content;
+                //width: fit-content;
+                justify-content: center;
                 text-align: right;
                 text-align: center;
+
+                .label {
+                    text-align: center;
+                    width: 100%;
+                }
             }
 
             .age-threshold-dropdown {
@@ -1217,19 +1238,41 @@
                 font-size: 0.8em;
                 line-height: 1.2;
             }
+        }
+        .legend {
+            display: flex;
+            gap: 1em;
+            margin-bottom: 1em;
+            padding-left: 1.5em;
 
-            .legend-key {
+            .col {
                 display: flex;
-                flex: 1;
+                gap: 0.5em;
+                font-size: 0.8rem;
                 align-items: center;
-                flex-direction: column;
+            }
 
-                .dim {
-                    opacity: 0.5;
+            .icon {
+                width: 16px;
+                height: 16px;
+                border-radius: 16px;
+                background: lightgrey;
+                border: 2px solid lightgrey;
+                position: relative;
+
+                &:after {
+                    position: absolute;
+                    content: "";
+                    top: 2px;
+                    left: 2px;
+                    width: 8px;
+                    height: 8px;
+                    background: rgb(92, 100, 122);
+                    border-radius: 10px;
                 }
 
-                .icon {
-                    transform: translateY(12.5%);
+                &-warning {
+                    background: transparent;
                 }
             }
         }
