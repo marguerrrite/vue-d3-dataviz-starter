@@ -451,7 +451,7 @@
                     </Tooltip>
                 </h3>
 
-                <h3 class="secondary">USA</h3>
+                <h3 class="secondary">USA, 1982 – 2002</h3>
                 <div class="chart-legend">
                     <div class="col">
                         <div class="count">
