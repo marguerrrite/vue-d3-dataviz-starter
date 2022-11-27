@@ -2,7 +2,7 @@
 ---
 Project starter to get up and moving quickly, with examples. For Sabine!
 
-https:/marguerite.io/vue-d3-dataviz-starter
+[https://marguerite.io/vue-d3-dataviz-starter](https://marguerite.io/vue-d3-dataviz-starter)
 
 ![image](https://user-images.githubusercontent.com/5288685/185763550-e0d2dc8f-28b0-469d-a903-cbeec27dac02.png)
 
