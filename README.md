@@ -15,7 +15,7 @@ Alternatively, you can ignore all the d3 and use this as a Vue + Vite starter.
 
 1. Open terminal and clone this repo:
 ```
-git clone git@github.com:margueriteroth/...
+git clone git@github.com:margueriteroth/vue-d3-dataviz-starter.git
 ```
 
 2. Go into that folder via terminal:
