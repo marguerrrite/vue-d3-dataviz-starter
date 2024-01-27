@@ -4,3 +4,4 @@ generated_test_results/**
 dist
 dist-ssr
 *.local
+.env*
