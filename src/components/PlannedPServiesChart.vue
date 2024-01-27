@@ -1,6 +1,6 @@
 <script>
     import {timeFormat, scaleLinear, scaleBand, range as d3Range} from "d3";
-    import {max} from "d3-array";
+    import {max} from "d3";
 
     import utils from "@/scripts/utils.js";
 

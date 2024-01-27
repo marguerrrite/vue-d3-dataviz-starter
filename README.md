@@ -33,7 +33,7 @@ npm install
 npm run dev
 ```
 
-5. http://localhost:3000/
+5. http://localhost:5173/
 
 
 ---

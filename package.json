@@ -1,6 +1,6 @@
 {
     "name": "vue-d3-dataviz-starter",
-    "version": "0.1.0",
+    "version": "1.0.2",
     "scripts": {
         "build": "vite build",
         "dev": "vite",
@@ -8,17 +8,12 @@
     },
     "dependencies": {
         "d3": "^7.8.5",
-        "d3-array": "^3.2.4",
         "d3-delaunay": "^6.0.4",
-        "d3-format": "^3.1.0",
-        "d3-time": "^3.1.0",
         "markdown-it-anchor": "^8.6.7",
         "markdown-it-ins": "^3.0.1",
         "markdown-it-prism": "^2.3.0",
-        "path": "^0.12.7",
-        "require": "^2.4.20",
-        "uuid": "^8.3.2",
-        "vue": "^3.3.4",
+        "vite": "^5.0.12",
+        "vue": "^3.4.15",
         "vue-papa-parse": "^3.1.0",
         "vuex": "^4.1.0"
     },
@@ -27,10 +22,9 @@
         "@vueuse/head": "^0.7.13",
         "prettier": "2.4.1",
         "prismjs": "^1.29.0",
-        "sass": "^1.67.0",
+        "sass": "^1.70.0",
         "sass-loader": "^10.4.1",
         "unplugin-vue-components": "^0.25.2",
-        "vite": "2.3.1",
         "vite-plugin-pages": "^0.25.0",
         "vite-plugin-pages-sitemap": "^1.6.1",
         "vue-router": "^4.2.4"

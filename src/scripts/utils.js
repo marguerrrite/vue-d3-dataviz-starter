@@ -1,7 +1,4 @@
-import {format as d3Format} from "d3-format";
-import {timeDay as d3TimeDay} from "d3-time";
-import {timeDays as d3TimeDays} from "d3-time";
-import {timeMonth as d3TimeMonth} from "d3-time";
+
 
 let utils = {
     getReadingTime(string) {
