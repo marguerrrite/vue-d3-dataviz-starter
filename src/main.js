@@ -9,7 +9,7 @@ import utils from "./scripts/utils.js";
 
 const app = createApp(App);
 
-const widgets = import.meta.globEager("./components/**/*.vue");
+const widgets = import.meta.glob("./components/**/*.vue", { eager: true });
 for (const path in widgets) {
     let componentConfig = widgets[path];
     const componentName = componentConfig.default.name;
@@ -20,7 +20,7 @@ app.mixin({
     methods: utils.filters,
 });
 
-const layouts = import.meta.globEager("./layouts/**/*.vue");
+const layouts = import.meta.glob("./layouts/**/*.vue", { eager: true });
 for (const path in layouts) {
     let componentConfig = layouts[path];
     const componentName = componentConfig.default.name;
