@@ -13,6 +13,7 @@
 
     export default {
         name: "MassShootingPlot",
+        components: {Tooltip},
         props: {
             yAccessor: {
                 type: Function,
@@ -409,6 +410,7 @@
                     d => d.value == this.activeCalloutAge
                 ).label;
             }
+
             await this.loadData();
             this.resizeObserver = new ResizeObserver(
                 utils.animationFrame(this.setDimensions)
@@ -418,7 +420,6 @@
         beforeUnmount() {
             this.resizeObserver.disconnect();
         },
-        components: {Tooltip},
     };
 </script>
 
@@ -441,11 +442,6 @@
                         <template #contents
                             ><p>
                                 For tragedies resulting in at least one death.
-                            </p>
-                            <p>
-                                I would like to update this with a dataset for
-                                all shootings, not just events resulting in
-                                fatalities.
                             </p>
                         </template>
                     </Tooltip>
@@ -505,6 +501,7 @@
             <div class="chart-container" ref="container">
                 <template v-if="!isLoading">
                     <div
+                        v-if="hoveredPeriodIndex > -1"
                         class="tooltip-date-container"
                         :style="{
                             transform: `translate(${
@@ -518,6 +515,7 @@
                         </div>
                     </div>
                     <div
+                        v-if="hoveredPeriodIndex > -1"
                         class="tooltip-container"
                         :style="{
                             transform: `translate(${
@@ -928,9 +926,6 @@
             }
         }
 
-        .tooltip-container {
-        }
-
         .mass-shooting-tooltip {
             position: absolute;
             width: max-content;
@@ -988,10 +983,6 @@
 
                 p {
                     margin: 0;
-
-                    &:first-of-type {
-                        margin-bottom: 1em;
-                    }
                 }
             }
         }

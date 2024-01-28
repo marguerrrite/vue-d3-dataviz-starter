@@ -51,9 +51,3 @@ npm run dev
 - Mass shootings
 	-  https://www.motherjones.com/politics/2012/12/mass-shootings-mother-jones-full-data/
 	-  https://data.world/marguerite/mother-jones-mass-shooting/workspace/file?filename=mass-shooting-mother-jones.csv
-
-
-
-On deck:
-- Map
-- Bar chart (commented out bars in the Global Heat styled chart)

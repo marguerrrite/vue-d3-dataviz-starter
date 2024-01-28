@@ -107,7 +107,7 @@
                             {{ item }}
                         </li>
                     </ul>
-                    <label class="label"> Last updated October 14, 2022. </label>
+                    <label class="label"> Last updated January 28, 2024. </label>
                 </div>
             </div>
         </div>
