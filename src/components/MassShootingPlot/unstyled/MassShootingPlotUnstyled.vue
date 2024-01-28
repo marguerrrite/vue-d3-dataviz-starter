@@ -264,7 +264,6 @@
                     Mother Jones
                 </Link>
             </div>
-            <label for=""> Last updated October 14, 2022 </label>
         </div>
 
         <div v-if="isLoading">Loading data...</div>
